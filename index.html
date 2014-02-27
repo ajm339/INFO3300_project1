@@ -1,5 +1,6 @@
 <html>
 	<head>
+		<title>Project 1</title>
 		<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 		<script src="http://fb.me/react-0.9.0.min.js"></script>
 		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
@@ -12,8 +13,10 @@
 
 		<script>
 
-		function coolstuff(x){
-			console.log(x);
+		var stuff = {
+			coolstuff: function(x){console.log(x);},
+			test: 'hey',
+			hello: function(){return "hello world";}
 		}
 
 		var RedditData = React.createClass({
@@ -27,7 +30,7 @@
 		            type: 'GET',
 		            success: function(data) {
 		            	this.setState({reddit_data: data});
-		            	coolstuff(this.state.reddit_data);
+		            	stuff.coolstuff(this.state.reddit_data);
 		            }.bind(this)
 		        });
 		    },
