@@ -12,13 +12,20 @@
 
 
 		<script>
+        
+        var posts = [];
 
 		var stuff = {
-			coolstuff: function(x){console.log(x);},
+			coolstuff: function(x){posts = posts.concat(x.data.children);},
 			test: 'hey',
 			hello: function(){return "hello world";}
 		}
-
+        
+        function processChunk(chunk){//takes a chunk of reddit data and pulls the info we want from it
+        
+        
+        }
+        
 		var RedditData = React.createClass({
 			doFunction:function(x) {
 				console.log(x);
