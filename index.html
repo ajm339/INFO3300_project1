@@ -11,14 +11,23 @@
 
 
 		<script>
+
+		function coolstuff(x){
+			console.log(x);
+		}
+
 		var RedditData = React.createClass({
+			doFunction:function(x) {
+				console.log(x);
+			},
 		    loadRedditDataFromServer: function() {
+		    	var fuck = this.state.reddit_data;
 		        $.ajax({
 		            url: this.props.url,
 		            type: 'GET',
 		            success: function(data) {
-		            	this.setState({new_reddit_data: data});
-		                console.log(this.state.new_reddit_data);
+		            	this.setState({reddit_data: data});
+		            	coolstuff(this.state.reddit_data);
 		            }.bind(this)
 		        });
 		    },
@@ -30,11 +39,10 @@
 		      setInterval(this.loadRedditDataFromServer, this.props.pollInterval);
 		    },
 		    render: function() {
-		    	var information = this.state.new_reddit_data;
 		        return (
 		          React.DOM.div(
 		            {className: 'new_reddit_data',
-		            children: [information]
+		            children: [this.state.reddit_data]
 		            })
 		        );
 		    }
@@ -44,6 +52,19 @@
 	    React.renderComponent(
 	        RedditData({url:'http://www.reddit.com/new/.json', pollInterval: '120000'}),  document.getElementById('spot')
 	    );
+				// var fuck = '';
+				// $.ajax({
+		  //           url: 'http://www.reddit.com/new/.json',
+		  //           type: 'GET',
+		  //           success: function(data) {
+		  //           	fuck = data;
+		  //           	console.log(fuck);
+		  //           }.bind(this)
+		  //       });
+
+			
+
+	    
 		</script>
 	</body>
 </html>
