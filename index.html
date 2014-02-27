@@ -1,8 +1,49 @@
 <html>
 	<head>
+		<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+		<script src="http://fb.me/react-0.9.0.min.js"></script>
+		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 	</head>
 
 	<body>
 		<h1>Project 1</h1>
+		<div id='spot'></div>
+
+
+		<script>
+		var RedditData = React.createClass({
+		    loadRedditDataFromServer: function() {
+		        $.ajax({
+		            url: this.props.url,
+		            type: 'GET',
+		            success: function(data) {
+		            	this.setState({new_reddit_data: data});
+		                console.log(this.state.new_reddit_data);
+		            }.bind(this)
+		        });
+		    },
+		    getInitialState: function() {
+		        return {reddit_data: []};
+		    },
+		    componentWillMount: function() {
+		      this.loadRedditDataFromServer();
+		      setInterval(this.loadRedditDataFromServer, this.props.pollInterval);
+		    },
+		    render: function() {
+		    	var information = this.state.new_reddit_data;
+		        return (
+		          React.DOM.div(
+		            {className: 'new_reddit_data',
+		            children: [information]
+		            })
+		        );
+		    }
+		});
+
+	    
+	    React.renderComponent(
+	        RedditData({url:'http://www.reddit.com/new/.json', pollInterval: '120000'}),  document.getElementById('spot')
+	    );
+		</script>
 	</body>
 </html>
