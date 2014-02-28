@@ -1,9 +1,13 @@
+<!DOCTYPE html>
 <html>
 	<head>
 		<title>Project 1</title>
+
 		<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 		<script src="http://fb.me/react-0.9.0.min.js"></script>
 		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+        <script src="testData.js"></script>
+
 
 		<style>
 			svg { border: solid black 1px; }
@@ -40,7 +44,7 @@
   				.attr("class", "trending_words")
   				.attr("x", function(w) {return xScale(w.x);})
   				.attr("y", function(w) {return yScale(w.y);})
-  				.text(function (w) { return w.word; })
+  				.text(function (w) { return w.word; });
 
 
   		svg.append("text").attr("x", xScale(-3)).attr("y", yScale(-0.5)).text("Time Blocks");
@@ -116,32 +120,34 @@
 		//             }.bind(this)
 		//         });
         
-        var posts = [];
+//        var posts = [];
+//
+//        var relDat = [];
 
-        var relDat = [];
-
-		var stuff = {
-			coolstuff: function(x){posts = posts.concat(x.data.children);},
-			test: 'hey',
-			hello: function(){return "hello world";}
-		}
+//		var stuff = {
+//			coolstuff: function(x){posts = posts.concat(x.data.children);},
+//			test: 'hey',
+//			hello: function(){return "hello world";}
+//		}
         
-        function processChunk(chunk){//takes a chunk of reddit data and pulls the info we want from it
+//        function processChunk(chunk){//takes a chunk of reddit data and pulls the info we want from it
+//
+//
+//
+//        };
 
-
-        
-        }
 
         var getter = {
+            reqSize : 25,
             acc : [],
-            baseURL : "http://www.reddit.com/new/.json?&limit=100",
+            baseURL : "http://www.reddit.com/new/.json?&limit=25",
             nextURL : null,
             apiCount : 0,
             prevData: null,
-            getNPagesCt : 0,
+
 
             nextPageURL: function(data){
-                this.apiCount+=100;
+                this.apiCount+=25;
                 this.nextURL = (this.baseURL+"&count="+this.apiCount+"&after="+data.data.after);
             },
 
@@ -165,7 +171,7 @@
                         this.prevData = data;
                         this.acc = this.acc.concat(data.data.children);
                         this.nextPageURL(data);
-                        console.log("NEW nextURL:  "+this.nextURL)
+                        console.log("NEW nextURL:  "+this.nextURL);
 
                         //console.log(data);
                         //console.log("acc length="+this.acc.length);
@@ -187,26 +193,60 @@
                 console.log(unqs.length);
             },
 
-            get10pages : setInterval(function(){
-                getter.requestAPage();
-                getter.getNPagesCt ++;
-                if (getter.getNPagesCt >= 10){
-                    clearInterval(getter.get10pages);
-                }
-                console.log(getter.acc.length);
-            },2000),
-
-            timeBins : function(){
-                var times = [];
-                this.acc.forEach(function(p){times = times.concat(p.data.created_utc);});
-                var start = Math.min.apply(Math, times);
-                var end = Math.max.apply(Math, times);
-                this.acc.forEach(function(p){
-                    ((p.data.created_utc - start)/60)
-                });
+            getData : function(){
+                var getNPagesCt = 0;
+                var get10pages = setInterval(function(){
+                    getter.requestAPage();
+                    getNPagesCt ++;
+                    if (getNPagesCt >= 10){
+                        clearInterval(get10pages);
+                    }
+                    console.log(getter.acc.length);
+                    },2000);
             }
 
+        }//end getter
+
+        returnUniques = function(arg){
+            var unqs = [];
+            var i;
+            for (i= 0; i < arg.length ; i++){
+                if(unqs.indexOf(arg[i]) == -1){
+                    unqs = unqs.concat(arg[i]);
+                }
+            }
+            console.log(arg.length);
+            console.log(unqs.length);
+            //return unqs.sort(function(a,b){return a-b});
+            return unqs;
         }
+
+        function timeBins(posts){
+            var times = [];
+            posts.forEach(function(p){console.log(p.data.created_utc); times = times.concat(p.data.created_utc);});
+            var start = Math.min.apply(Math, times);
+            var end = Math.max.apply(Math, times);
+
+            var relTimes = [];
+            times.forEach(function(t){relTimes = relTimes.concat(t-start);});
+
+            var bins = [];
+            posts.forEach(function(p){
+                var t = Math.floor((p.data.created_utc - start)/(60*5));
+                if (typeof(bins[t])=="undefined"){
+                    bins[t] =[];
+                    bins[t] = bins[t].concat(p);
+                }else{
+                    bins[t] = bins[t].concat(p);
+                }
+            });//end forEach
+
+            return [bins,times,relTimes];
+ge
+
+        }
+
+
 
         function extractTitleWords(posts){
             var words = [];
@@ -224,7 +264,7 @@
             });
 
             return wordCounter;
-        }
+        }//end extract title words
 
 		</script>
 	</body>
