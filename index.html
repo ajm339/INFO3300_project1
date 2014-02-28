@@ -54,66 +54,66 @@
 		var yAxis = d3.svg.axis().scale(yScale).orient("left");
 		svg.append("g").attr("class", "axis").attr("transform", "translate(" + xScale(0) + ", 0)").call(yAxis);
 
-        // var posts = [];
+        var posts = [];
 
 
 
-		// var stuff = {
-		// 	coolstuff: function(x){posts = posts.concat(x.data.children);},
-		// 	test: 'hey',
-		// 	hello: function(){return "hello world";}
-		// }
+		var stuff = {
+			coolstuff: function(x){posts = posts.concat(x.data.children);},
+			test: 'hey',
+			hello: function(){return "hello world";}
+		}
         
-  //       function processChunk(chunk){//takes a chunk of reddit data and pulls the info we want from it
+        function processChunk(chunk){//takes a chunk of reddit data and pulls the info we want from it
         
         
-  //       }
+        }
         
-		// var RedditData = React.createClass({
-		// 	doFunction:function(x) {
-		// 		console.log(x);
-		// 	},
-		//     loadRedditDataFromServer: function() {
-		//     	var fuck = this.state.reddit_data;
-		//         $.ajax({
-		//             url: this.props.url,
-		//             type: 'GET',
-		//             success: function(data) {
-		//             	this.setState({reddit_data: data});
-		//             	stuff.coolstuff(this.state.reddit_data);
-		//             }.bind(this)
-		//         });
-		//     },
-		//     getInitialState: function() {
-		//         return {reddit_data: []};
-		//     },
-		//     componentWillMount: function() {
-		//       this.loadRedditDataFromServer();
-		//       setInterval(this.loadRedditDataFromServer, this.props.pollInterval);
-		//     },
-		//     render: function() {
-		//         return (
-		//           React.DOM.div(
-		//             {className: 'new_reddit_data',
-		//             children: [this.state.reddit_data]
-		//             })
-		//         );
-		//     }
-		// });
+		var RedditData = React.createClass({
+			doFunction:function(x) {
+				console.log(x);
+			},
+		    loadRedditDataFromServer: function() {
+		    	var fuck = this.state.reddit_data;
+		        $.ajax({
+		            url: this.props.url,
+		            type: 'GET',
+		            success: function(data) {
+		            	this.setState({reddit_data: data});
+		            	stuff.coolstuff(this.state.reddit_data);
+		            }.bind(this)
+		        });
+		    },
+		    getInitialState: function() {
+		        return {reddit_data: []};
+		    },
+		    componentWillMount: function() {
+		      this.loadRedditDataFromServer();
+		      setInterval(this.loadRedditDataFromServer, this.props.pollInterval);
+		    },
+		    render: function() {
+		        return (
+		          React.DOM.div(
+		            {className: 'new_reddit_data',
+		            children: [this.state.reddit_data]
+		            })
+		        );
+		    }
+		});
 
 	    
-	 //    React.renderComponent(
-	 //        RedditData({url:'http://www.reddit.com/new/.json', pollInterval: '120000'}),  document.getElementById('spot')
-	 //    );
-				// var fuck = '';
-				// $.ajax({
-		  //           url: 'http://www.reddit.com/new/.json',
-		  //           type: 'GET',
-		  //           success: function(data) {
-		  //           	fuck = data;
-		  //           	console.log(fuck);
-		  //           }.bind(this)
-		  //       });
+	    React.renderComponent(
+	        RedditData({url:'http://www.reddit.com/new/.json', pollInterval: '120000'}),  document.getElementById('spot')
+	    );
+				var fuck = '';
+				$.ajax({
+		            url: 'http://www.reddit.com/new/.json',
+		            type: 'GET',
+		            success: function(data) {
+		            	fuck = data;
+		            	console.log(fuck);
+		            }.bind(this)
+		        });
 
 			
 
