@@ -4,7 +4,7 @@
 		<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 		<script src="http://fb.me/react-0.9.0.min.js"></script>
 		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
-		
+
 		<style>
 			svg { border: solid black 1px; }
 			.axis path { fill: none; stroke: black;}
@@ -14,16 +14,19 @@
 		</style>
 	</head>
 
+    <svg height="400" widht="400" >
+        <circle id="shitty" cx="50" cy="50" r="20" stroke="black" stroke-width="3" fill="red"></circle>
+
+    </svg>
+
 	<body>
 		<h1>Project 1</h1>
 		<div id='spot'></div>
 
-		<div id="canvas"></div>
-
 
 		<script>
-        
-	    var xScale = d3.scale.linear().domain([0, 20]).range([150,880]);
+
+        var xScale = d3.scale.linear().domain([0, 20]).range([150,880]);
 		var yScale = d3.scale.linear().domain([-20,20]).range([750,20]);
 		
 		var svg = d3.select("#canvas").append("svg").attr("height", 800).attr("width", 1050);
@@ -54,9 +57,70 @@
 		var yAxis = d3.svg.axis().scale(yScale).orient("left");
 		svg.append("g").attr("class", "axis").attr("transform", "translate(" + xScale(0) + ", 0)").call(yAxis);
 
+  //       var posts = [];
+
+
+
+		// var stuff = {
+		// 	coolstuff: function(x){posts = posts.concat(x.data.children);},
+		// 	test: 'hey',
+		// 	hello: function(){return "hello world";}
+		// }
+        
+  //       function processChunk(chunk){//takes a chunk of reddit data and pulls the info we want from it
+        
+        
+  //       }
+        
+		// var RedditData = React.createClass({
+		// 	doFunction:function(x) {
+		// 		console.log(x);
+		// 	},
+		//     loadRedditDataFromServer: function() {
+		//     	var fuck = this.state.reddit_data;
+		//         $.ajax({
+		//             url: this.props.url,
+		//             type: 'GET',
+		//             success: function(data) {
+		//             	this.setState({reddit_data: data});
+		//             	stuff.coolstuff(this.state.reddit_data);
+		//             }.bind(this)
+		//         });
+		//     },
+		//     getInitialState: function() {
+		//         return {reddit_data: []};
+		//     },
+		//     componentWillMount: function() {
+		//       this.loadRedditDataFromServer();
+		//       setInterval(this.loadRedditDataFromServer, this.props.pollInterval);
+		//     },
+		//     render: function() {
+		//         return (
+		//           React.DOM.div(
+		//             {className: 'new_reddit_data',
+		//             children: [this.state.reddit_data]
+		//             })
+		//         );
+		//     }
+		// });
+
+	    
+	 //    React.renderComponent(
+	 //        RedditData({url:'http://www.reddit.com/new/.json', pollInterval: '120000'}),  document.getElementById('spot')
+	 //    );
+		// 		var fuck = '';
+		// 		$.ajax({
+		//             url: 'http://www.reddit.com/new/.json',
+		//             type: 'GET',
+		//             success: function(data) {
+		//             	fuck = data;
+		//             	console.log(fuck);
+		//             }.bind(this)
+		//         });
+        
         var posts = [];
 
-
+        var relDat = [];
 
 		var stuff = {
 			coolstuff: function(x){posts = posts.concat(x.data.children);},
@@ -65,59 +129,105 @@
 		}
         
         function processChunk(chunk){//takes a chunk of reddit data and pulls the info we want from it
-        
+
+
         
         }
-        
-		var RedditData = React.createClass({
-			doFunction:function(x) {
-				console.log(x);
-			},
-		    loadRedditDataFromServer: function() {
-		    	var fuck = this.state.reddit_data;
-		        $.ajax({
-		            url: this.props.url,
-		            type: 'GET',
-		            success: function(data) {
-		            	this.setState({reddit_data: data});
-		            	stuff.coolstuff(this.state.reddit_data);
-		            }.bind(this)
-		        });
-		    },
-		    getInitialState: function() {
-		        return {reddit_data: []};
-		    },
-		    componentWillMount: function() {
-		      this.loadRedditDataFromServer();
-		      setInterval(this.loadRedditDataFromServer, this.props.pollInterval);
-		    },
-		    render: function() {
-		        return (
-		          React.DOM.div(
-		            {className: 'new_reddit_data',
-		            children: [this.state.reddit_data]
-		            })
-		        );
-		    }
-		});
 
-	    
-	    React.renderComponent(
-	        RedditData({url:'http://www.reddit.com/new/.json', pollInterval: '120000'}),  document.getElementById('spot')
-	    );
-				var fuck = '';
-				$.ajax({
-		            url: 'http://www.reddit.com/new/.json',
-		            type: 'GET',
-		            success: function(data) {
-		            	fuck = data;
-		            	console.log(fuck);
-		            }.bind(this)
-		        });
+        var getter = {
+            acc : [],
+            baseURL : "http://www.reddit.com/new/.json?&limit=100",
+            nextURL : null,
+            apiCount : 0,
+            prevData: null,
+            getNPagesCt : 0,
 
-			
+            nextPageURL: function(data){
+                this.apiCount+=100;
+                this.nextURL = (this.baseURL+"&count="+this.apiCount+"&after="+data.data.after);
+            },
 
-	    
+            requestAPage : function(){
+                if (this.nextURL==null){
+                    var url = this.baseURL;
+                }else{
+                    var url = this.nextURL;
+                }
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function(data) {
+                        //console.log(data);
+                        //console.log("acc length="+this.acc.length);
+                        //console.log(this.nextURL);
+
+                        console.log("Querried: "+url);
+                        console.log("nextURL:  "+this.nextURL);
+                        console.log(data.data.after);
+                        this.prevData = data;
+                        this.acc = this.acc.concat(data.data.children);
+                        this.nextPageURL(data);
+                        console.log("NEW nextURL:  "+this.nextURL)
+
+                        //console.log(data);
+                        //console.log("acc length="+this.acc.length);
+                        //console.log(this.nextURL);
+
+                    }.bind(this)
+                });
+            },
+
+            returnUniques : function(){
+                var unqs = [];
+                var i;
+                for (i= 0; i < this.acc.length ; i++){
+                    if(unqs.indexOf(this.acc[i]) == -1){
+                        unqs = unqs.concat(this.acc[i]);
+                    }
+                }
+                console.log(this.acc.length);
+                console.log(unqs.length);
+            },
+
+            get10pages : setInterval(function(){
+                getter.requestAPage();
+                getter.getNPagesCt ++;
+                if (getter.getNPagesCt >= 10){
+                    clearInterval(getter.get10pages);
+                }
+                console.log(getter.acc.length);
+            },2000),
+
+            timeBins : function(){
+                var times = [];
+                this.acc.forEach(function(p){times = times.concat(p.data.created_utc);});
+                var start = Math.min.apply(Math, times);
+                var end = Math.max.apply(Math, times);
+                this.acc.forEach(function(p){
+                    ((p.data.created_utc - start)/60)
+                });
+            }
+
+        }
+
+        function extractTitleWords(posts){
+            var words = [];
+            posts.forEach(function(p){
+                words = words.concat(p.data.title.toLocaleLowerCase().split(" "));
+            });
+
+            wordCounter = {};
+            words.forEach(function(w){
+               if(typeof(wordCounter[w.toLocaleLowerCase()])=="number"){
+                   wordCounter[w.toLocaleLowerCase()]+=1;
+               }else{
+                   wordCounter[w.toLocaleLowerCase()]=1;
+               }
+            });
+
+            return wordCounter;
+        }
+
 		</script>
 	</body>
 </html>
