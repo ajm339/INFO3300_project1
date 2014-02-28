@@ -23,10 +23,10 @@
 
 		<script>
         
-	    var xScale = d3.scale.linear().domain([0, 20]).range([50,780]);
+	    var xScale = d3.scale.linear().domain([0, 20]).range([150,880]);
 		var yScale = d3.scale.linear().domain([-20,20]).range([750,20]);
 		
-		var svg = d3.select("#canvas").append("svg").attr("height", 800).attr("width", 800);
+		var svg = d3.select("#canvas").append("svg").attr("height", 800).attr("width", 1050);
 
 
 		var input = [
@@ -42,14 +42,17 @@
   				.text(function (w) { return w.word; })
 
 
-
+  		svg.append("text").attr("x", xScale(-3)).attr("y", yScale(-0.5)).text("Time Blocks");
+  		svg.append("text").attr("x", xScale(-11)).attr("y", yScale(16)).text("Trending Status").attr("transform", "rotate(-90)");
+  		svg.append("text").attr("x", xScale(-12)).attr("y", yScale(15)).text("(is popularity increasing or decreasing over time)").attr("transform", "rotate(-90)").attr("font-size", "8pt");
+  		
 
 		var xAxis = d3.svg.axis().scale(xScale);
 
 		svg.append("g").attr("class", "axis").attr("transform", "translate(0, " + yScale(0) + ")").call(xAxis);
 
 		var yAxis = d3.svg.axis().scale(yScale).orient("left");
-		svg.append("g").attr("class", "axis").attr("transform", "translate(50, 0)").call(yAxis);
+		svg.append("g").attr("class", "axis").attr("transform", "translate(" + xScale(0) + ", 0)").call(yAxis);
 
         // var posts = [];
 
