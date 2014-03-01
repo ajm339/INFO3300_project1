@@ -33,7 +33,7 @@
             if(y==0){
                 return 0.3;
             } else {
-                return (y/15);
+                return (2*y);
             }
         }
         function mouseover(){
@@ -44,19 +44,19 @@
         }
 
         var xScale = d3.scale.linear().domain([0, 20]).range([150,880]);
-		var yScale = d3.scale.linear().domain([-20,20]).range([750,20]);
+		var yScale = d3.scale.linear().domain([-1,1]).range([750,20]);
 		
 		var svg = d3.select("#canvas").append("svg").attr("height", 800).attr("width", 1050);
 
 
 		var input = [
-			{"word": "of", "x": 1, "y": 5},
-			{"word": "the", "x": 4, "y": -4},
+			{"word": "of", "x": 1, "y": .25},
+			{"word": "the", "x": 4, "y": -.4},
 			{"word": "banana", "x": 8, "y": 0},
-            {"word": "mateo", "x": 18, "y": 20},
-            {"word": "yum", "x": 10, "y": -10},
-            {"word": "hello", "x": 7, "y": 8},
-            {"word": "mateo", "x": 12, "y": -14}  ];
+            {"word": "mateo", "x": 18, "y": 1},
+            {"word": "yum", "x": 10, "y": -.5},
+            {"word": "hello", "x": 7, "y": .2},
+            {"word": "mateo", "x": 12, "y": -.75}  ];
 
   			var words = svg.selectAll("text").data(input).enter().append("text");
   			var wordAttributes = words
@@ -73,9 +73,9 @@
             
             
 
-  		svg.append("text").attr("x", xScale(-3)).attr("y", yScale(-0.5)).text("Time Blocks");
-  		svg.append("text").attr("x", xScale(-11)).attr("y", yScale(16)).text("Trending Status").attr("transform", "rotate(-90)");
-  		svg.append("text").attr("x", xScale(-12)).attr("y", yScale(15)).text("(is popularity increasing or decreasing over time)").attr("transform", "rotate(-90)").attr("font-size", "8pt");
+  		svg.append("text").attr("x", xScale(-3)).attr("y", yScale(0)).text("Time Blocks");
+  		svg.append("text").attr("x", xScale(-11)).attr("y", yScale(.8)).text("Trending Status").attr("transform", "rotate(-90)");
+  		svg.append("text").attr("x", xScale(-12)).attr("y", yScale(.77)).text("(is popularity increasing or decreasing over time)").attr("transform", "rotate(-90)").attr("font-size", "8pt");
   		
 
 		var xAxis = d3.svg.axis().scale(xScale);
