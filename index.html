@@ -14,8 +14,9 @@
 			svg { border: solid black 1px; }
 			.axis path { fill: none; stroke: black;}
 			.axis line { stroke: black; }
-			text.trending_words { font-size: small; font-family: "Helvetica"; opacity: 0.3; text-anchor: middle; alignment-baseline: central; cursor: pointer;}
-			text.trending_words:hover { fill: blue; opacity: 1.0; font-weight: bold; font-size: xx-large; }
+			text.trending_words { font-size: small; font-family: "Helvetica"; text-anchor: middle; alignment-baseline: central; cursor: pointer;}
+			text.trending_words:hover {font-weight: bold; font-size: xx-large; }
+            text.trending_words.opacity{opacity: '1.0'};
 		</style>
 	</head>
 
@@ -28,25 +29,45 @@
 
 
 		<script>
+        function opacityScale(y){
+            if(y==0){
+                return 0.3;
+            } else {
+                return (y/15);
+            }
+        }
+        function mouseover(){
+            d3.select(this).style("opacity", "1.0");
+        }
+        function mouseout(){
+            d3.select(this).style("opacity", function(w){return opacityScale(Math.abs(w.y))});
+        }
 
         var xScale = d3.scale.linear().domain([0, 20]).range([150,880]);
 		var yScale = d3.scale.linear().domain([-20,20]).range([750,20]);
 		
 		var svg = d3.select("#canvas").append("svg").attr("height", 800).attr("width", 1050);
 
-
-		var input = [
-			{"word": "of", "x": 1, "y": 5},
-			{"word": "the", "x": 4, "y": -4},
-			{"word": "banana", "x": 8, "y": 0}  ];
+			var input = [{"word": "banana", "x": 8, "y": 0},
+            {"word": "mateo", "x": 18, "y": 20},
+            {"word": "yum", "x": 10, "y": -10},
+            {"word": "hello", "x": 7, "y": 8},
+            {"word": "mateo", "x": 12, "y": -14}  ];
 
   			var words = svg.selectAll("text").data(input).enter().append("text");
   			var wordAttributes = words
   				.attr("class", "trending_words")
   				.attr("x", function(w) {return xScale(w.x);})
   				.attr("y", function(w) {return yScale(w.y);})
-  				.text(function (w) { return w.word; });
+                .style("fill", function(w){ if(w.y>0){return "#006633"}else if(w.y<0){return "8B1A1A"}else{return "000000"}})
+  				.text(function (w) { return w.word; })
+                .style("opacity", function(w){return opacityScale(Math.abs(w.y))});
 
+            d3.selectAll("text").on('mouseover', mouseover).on('mouseout', mouseout);
+
+            
+            
+            
 
   		svg.append("text").attr("x", xScale(-3)).attr("y", yScale(-0.5)).text("Time Blocks");
   		svg.append("text").attr("x", xScale(-11)).attr("y", yScale(16)).text("Trending Status").attr("transform", "rotate(-90)");
@@ -59,83 +80,6 @@
 
 		var yAxis = d3.svg.axis().scale(yScale).orient("left");
 		svg.append("g").attr("class", "axis").attr("transform", "translate(" + xScale(0) + ", 0)").call(yAxis);
-
-  //       var posts = [];
-
-
-
-		// var stuff = {
-		// 	coolstuff: function(x){posts = posts.concat(x.data.children);},
-		// 	test: 'hey',
-		// 	hello: function(){return "hello world";}
-		// }
-        
-  //       function processChunk(chunk){//takes a chunk of reddit data and pulls the info we want from it
-        
-        
-  //       }
-        
-		// var RedditData = React.createClass({
-		// 	doFunction:function(x) {
-		// 		console.log(x);
-		// 	},
-		//     loadRedditDataFromServer: function() {
-		//     	var fuck = this.state.reddit_data;
-		//         $.ajax({
-		//             url: this.props.url,
-		//             type: 'GET',
-		//             success: function(data) {
-		//             	this.setState({reddit_data: data});
-		//             	stuff.coolstuff(this.state.reddit_data);
-		//             }.bind(this)
-		//         });
-		//     },
-		//     getInitialState: function() {
-		//         return {reddit_data: []};
-		//     },
-		//     componentWillMount: function() {
-		//       this.loadRedditDataFromServer();
-		//       setInterval(this.loadRedditDataFromServer, this.props.pollInterval);
-		//     },
-		//     render: function() {
-		//         return (
-		//           React.DOM.div(
-		//             {className: 'new_reddit_data',
-		//             children: [this.state.reddit_data]
-		//             })
-		//         );
-		//     }
-		// });
-
-	    
-	 //    React.renderComponent(
-	 //        RedditData({url:'http://www.reddit.com/new/.json', pollInterval: '120000'}),  document.getElementById('spot')
-	 //    );
-		// 		var fuck = '';
-		// 		$.ajax({
-		//             url: 'http://www.reddit.com/new/.json',
-		//             type: 'GET',
-		//             success: function(data) {
-		//             	fuck = data;
-		//             	console.log(fuck);
-		//             }.bind(this)
-		//         });
-        
-//        var posts = [];
-//
-//        var relDat = [];
-
-//		var stuff = {
-//			coolstuff: function(x){posts = posts.concat(x.data.children);},
-//			test: 'hey',
-//			hello: function(){return "hello world";}
-//		}
-        
-//        function processChunk(chunk){//takes a chunk of reddit data and pulls the info we want from it
-//
-//
-//
-//        };
 
 
 
