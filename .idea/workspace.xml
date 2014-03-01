@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="de04d4d4-fa0d-4a7c-847f-5e0802cdb40c" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/index.html" afterPath="$PROJECT_DIR$/index.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="INFO3300_project1.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -28,7 +29,7 @@
       <file leaf-file-name="index.html" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="317" column="40" selection-start="10299" selection-end="10299" vertical-scroll-proportion="0.5862069" vertical-offset="4500" max-vertical-offset="5235">
+            <state line="352" column="67" selection-start="11424" selection-end="11424" vertical-scroll-proportion="0.86206895" vertical-offset="4905" max-vertical-offset="5535">
               <folding />
             </state>
           </provider>
@@ -372,7 +373,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="317" column="40" selection-start="10299" selection-end="10299" vertical-scroll-proportion="0.5862069" vertical-offset="4500" max-vertical-offset="5235">
+        <state line="352" column="67" selection-start="11424" selection-end="11424" vertical-scroll-proportion="0.86206895" vertical-offset="4905" max-vertical-offset="5535">
           <folding />
         </state>
       </provider>

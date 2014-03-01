@@ -296,7 +296,6 @@
                 }else if(compareFunc(accessorFunc(max),accessorFunc(el))){
                     max =el;
                 }
-
             });
             return max;
         }
@@ -335,6 +334,27 @@
                }
             );
             return wordsAtTimes;
+        }
+
+        function mapWords(wordsAtTimes){
+            avgWordFreq = {};
+            var allWords = [];
+            wordsAtTimes.forEach(function(t){
+                    allWords = allWords.concat(Object.keys(t));
+            });
+
+            allWords = returnUniques(allWords);
+
+            allWords.forEach(function(w){avgWordFreq[w] = 0;})
+
+            wordsAtTimes.forEach(function(t){
+
+                        var ks = Object.keys(t);
+                        ks.forEach(function(k){avgWordFreq[k]+=t[k]})
+
+                    }
+            );
+
         }
 
 
