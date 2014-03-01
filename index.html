@@ -34,11 +34,26 @@
 		
 		var svg = d3.select("#canvas").append("svg").attr("height", 800).attr("width", 1050);
 
+        var number_of_points = 1000;
+        var input = [];
 
-		var input = [
+
+        for(var i = 1; i <= number_of_points; i++){
+            input.push({"word": "banana" + i, "x": getRandomInt(0,20), "y": getRandomInt(-20, 20)});
+        }
+
+        /**
+         * Returns a random integer between min and max
+         * Using Math.round() will give you a non-uniform distribution!
+         */
+        function getRandomInt (min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+		/*var input = [
 			{"word": "of", "x": 1, "y": 5},
 			{"word": "the", "x": 4, "y": -4},
-			{"word": "banana", "x": 8, "y": 0}  ];
+			{"word": "banana", "x": 8, "y": 0}  ];*/
 
   			var words = svg.selectAll("text").data(input).enter().append("text");
   			var wordAttributes = words
