@@ -7,6 +7,7 @@
 		<script src="http://fb.me/react-0.9.0.min.js"></script>
 		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
         <script src="testData.js"></script>
+        <script src="posts1000.js"></script>
 
 
 		<style>
@@ -189,8 +190,8 @@
                         unqs = unqs.concat(this.acc[i]);
                     }
                 }
-                console.log(this.acc.length);
-                console.log(unqs.length);
+                //console.log(this.acc.length);
+                //console.log(unqs.length);
             },
 
             getData : function(){
@@ -215,15 +216,18 @@
                     unqs = unqs.concat(arg[i]);
                 }
             }
-            console.log(arg.length);
-            console.log(unqs.length);
+            //console.log(arg.length);
+            //console.log(unqs.length);
             //return unqs.sort(function(a,b){return a-b});
             return unqs;
         }
 
-        function timeBins(posts){
+        function timeBins(posts, binWidthInSecs){
             var times = [];
-            posts.forEach(function(p){console.log(p.data.created_utc); times = times.concat(p.data.created_utc);});
+            posts.forEach(function(p){
+                /*console.log(p.data.created_utc);*/
+                times = times.concat(p.data.created_utc);
+            });
             var start = Math.min.apply(Math, times);
             var end = Math.max.apply(Math, times);
 
@@ -232,7 +236,7 @@
 
             var bins = [];
             posts.forEach(function(p){
-                var t = Math.floor((p.data.created_utc - start)/(60*5));
+                var t = Math.floor((p.data.created_utc - start)/(binWidthInSecs));
                 if (typeof(bins[t])=="undefined"){
                     bins[t] =[];
                     bins[t] = bins[t].concat(p);
@@ -241,17 +245,69 @@
                 }
             });//end forEach
 
+            for(var i = 0; i<bins.length;i++){
+                if(typeof(bins[i]) == "undefined"){bins[i]=[]}
+            }
+
             return [bins,times,relTimes];
-ge
 
         }
 
 
+        function isSorted(posts){
+            var isSorted = true;
+            var sorted = [];
+            var BreakException =  {};
+            function isBigger(sorted, cur){
+                var isit = true;
+                try{
+                    sorted.forEach(function(x){
+                        if(x==undefined){
+                            null;
+                        }else if(x.data.created_utc>cur.data.created_utc){
+                            isit = false;
+                            throw BreakException;
+                        }
+                    })
+                }catch(e){
+                    if(e==BreakException){
+                        return isit;
+                    }
+                }//end try-catch
+                return isit;
+            }
+
+            posts.forEach(function(p){
+                if(isBigger(sorted,p)){
+                    sorted.push(p);
+                }else{
+                    isSorted = false
+                    return isSorted;
+                }
+            })
+            return isSorted;
+        }
+
+        function arrayCompare(anArray, accessorFunc, compareFunc){
+            var max;
+            anArray.forEach(function(el){
+                if(max==undefined){
+                    max=el;
+                }else if(compareFunc(accessorFunc(max),accessorFunc(el))){
+                    max =el;
+                }
+
+            });
+            return max;
+        }
+
 
         function extractTitleWords(posts){
+
             var words = [];
             posts.forEach(function(p){
-                words = words.concat(p.data.title.toLocaleLowerCase().split(" "));
+                words = words.concat(p.data.title.replace(/[^\w\s]|_/g, "") //Strips punc
+                             .toLocaleLowerCase().split(" ")); //makes it lowercase and splits
             });
 
             wordCounter = {};
@@ -263,8 +319,25 @@ ge
                }
             });
 
+            //ToDo RETURN WORDS SORTED BY FREQUENCY
+
             return wordCounter;
         }//end extract title words
+
+        function wordCountsAtIntervals(timeWindowIntervalSecs, posts){
+            var tWin = timeWindowIntervalSecs;
+            var posts = returnUniques(posts);
+            var postData = timeBins(posts,tWin);
+            var wordsAtTimes = [];
+            postData[0].forEach(
+               function(bin){
+                   wordsAtTimes.push(extractTitleWords(bin));
+               }
+            );
+            return wordsAtTimes;
+        }
+
+
 
 		</script>
 	</body>
