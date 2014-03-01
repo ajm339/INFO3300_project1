@@ -9,11 +9,14 @@
 
 
 		<style>
-			svg { border: solid black 1px; }
+            h1{text-align: center;}
+            h2{text-align: center;}
+			svg { border: solid black 1px;}
+            #canvas {position: absolute; left:5%; top: 22%;}
 			.axis path { fill: none; stroke: black;}
 			.axis line { stroke: black; }
 			text.trending_words { font-size: small; font-family: "Helvetica"; text-anchor: middle; alignment-baseline: central; cursor: pointer;}
-			text.trending_words:hover {font-weight: bold; font-size: xx-large; }
+			text.trending_words:hover {font-weight: bold; font-size: xx-large; z-index: 99;}
             text.trending_words.opacity{opacity: '1.0'};
 		</style>
 	</head>
@@ -21,7 +24,8 @@
 
 
 	<body>
-		<h1>Project 1</h1>
+		<h1>Project 1, Relative Trending Word Frequencies on Reddit</h1>
+        <h2>Alex Meyers (ajm339), Mateo Acebedo (ma698), William Nebel (wtn5)</h2>
 		<div id='spot'></div>
 		<div id='canvas'></div>
 
@@ -49,15 +53,6 @@
         // globalAllWordsInfo.updateAll()
         // relWordFreqDataPoints.makeDataPoints(300)   the 300 is the size of the time window in seconds
         // relWordFreqDataPoints.dataPoints            returns all the dataPoint Objects
-
-
-
-
-
-
-
-
-
 
 
 
@@ -424,9 +419,9 @@
             
             
 
-        svg.append("text").attr("x", xScale(-50)).attr("y", yScale(0)).text("Time Blocks");
-        svg.append("text").attr("x", xScale(-150)).attr("y", yScale(.9)).text("Trending Status").attr("transform", "rotate(-90)");
-        svg.append("text").attr("x", xScale(-170)).attr("y", yScale(.85)).text("(is popularity increasing or decreasing over time)").attr("transform", "rotate(-90)").attr("font-size", "8pt");
+        svg.append("text").attr("x", xScale(-3)).attr("y", yScale(.001)).text("Time Blocks");
+        svg.append("text").attr("x", xScale(-14)).attr("y", yScale(.017)).text("Trending Status").attr("transform", "rotate(-90)");
+        svg.append("text").attr("x", xScale(-15)).attr("y", yScale(.016)).text("(is popularity increasing or decreasing over time)").attr("transform", "rotate(-90)").attr("font-size", "8pt");
         
 
         var xAxis = d3.svg.axis().scale(xScale);
