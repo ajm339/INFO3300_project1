@@ -85,7 +85,88 @@
 		svg.append("g").attr("class", "axis").attr("transform", "translate(" + xScale(0) + ", 0)").call(yAxis);
 
 
-        var getter = {
+
+
+//
+        // ALEX THESE ARE THE TWO CALLS YOU NEED TO MAKE
+        //
+        // globalAllWordsInfo.updateAll()
+        // relWordFreqDataPoints.makeDataPoints(300)   the 300 is the size of the time window in seconds
+        // relWordFreqDataPoints.dataPoints            returns all the dataPoint Objects
+
+
+
+
+
+
+
+
+
+
+
+
+
+        var globalAllPosts = {
+            allPosts : [],
+            addPost : function(post){
+                this.allPosts.push(post);
+            },
+            addPosts : function(postArray){
+                this.allPosts = this.allPosts.concat(postArray);
+            }
+        };
+
+
+        globalAllPosts.addPosts(posts1000);
+
+
+        function wordDataPoint(word,x,y,z){
+            this.word = word;
+            this.x = x;
+            this.y = y;
+            this.z= z;
+        }
+
+
+        function extractTitleWordCountsFromPostArray(posts){
+            var words = [];
+            posts.forEach(function(p){
+                words = words.concat(p.data.title.replace(/[^\w\s]|_/g, "") //Strips punc
+                        .toLocaleLowerCase().split(" ")); //makes it lowercase and splits
+            });
+
+            var wordCounter = {};
+            words.forEach(function(w){
+                if(typeof(wordCounter[w.toLocaleLowerCase()])=="number"){
+                    wordCounter[w.toLocaleLowerCase()]+=1;
+                }else{
+                    wordCounter[w.toLocaleLowerCase()]=1;
+                }
+            });
+
+            //ToDo RETURN WORDS SORTED BY FREQUENCY
+
+            return wordCounter;
+        }
+
+
+
+        globalAllWordsInfo = {
+            allWords : [],
+            allWordsCounter:{},
+            allWordsFreq:{},
+            numWordsCounted : 0,
+
+            updateAll : function(){
+                globalAllWordsInfo.allWordsCounter= extractTitleWordCountsFromPostArray(globalAllPosts.allPosts);
+                globalAllWordsInfo.allWords = Object.keys(this.allWordsCounter);
+                globalAllWordsInfo.allWords.forEach(function(w){globalAllWordsInfo.numWordsCounted +=globalAllWordsInfo.allWordsCounter[w];});
+                globalAllWordsInfo.allWords.forEach(function(w){globalAllWordsInfo.allWordsFreq[w]= ((globalAllWordsInfo.allWordsCounter[w])/(globalAllWordsInfo.numWordsCounted))});
+            }
+        };
+
+
+        var globalGetter = {
             reqSize : 25,
             acc : [],
             baseURL : "http://www.reddit.com/new/.json?&limit=25",
@@ -100,10 +181,11 @@
             },
 
             requestAPage : function(){
+                var url;
                 if (this.nextURL==null){
-                    var url = this.baseURL;
+                    url = this.baseURL;
                 }else{
-                    var url = this.nextURL;
+                    url = this.nextURL;
                 }
                 $.ajax({
                     url: url,
@@ -144,18 +226,19 @@
             getData : function(){
                 var getNPagesCt = 0;
                 var get10pages = setInterval(function(){
-                    getter.requestAPage();
+                    globalGetter.requestAPage();
                     getNPagesCt ++;
                     if (getNPagesCt >= 10){
                         clearInterval(get10pages);
                     }
-                    console.log(getter.acc.length);
+                    console.log(globalGetter.acc.length);
                     },2000);
             }
 
-        }//end getter
+        };//end globalGetter
 
-        returnUniques = function(arg){
+
+        function returnUniques(arg){
             var unqs = [];
             var i;
             for (i= 0; i < arg.length ; i++){
@@ -168,6 +251,7 @@
             //return unqs.sort(function(a,b){return a-b});
             return unqs;
         }
+
 
         function timeBins(posts, binWidthInSecs){
             var times = [];
@@ -201,6 +285,99 @@
         }
 
 
+        var relWordFreqDataPoints = {
+            dataPoints :[],
+            postsByTime : [],
+
+
+            timeBins : function(posts, binWidthInSecs){
+                var times = [];
+                posts.forEach(function(p){
+                    /*console.log(p.data.created_utc);*/
+                    times = times.concat(p.data.created_utc);
+                });
+                var start = Math.min.apply(Math, times);
+                var end = Math.max.apply(Math, times);
+
+                var relTimes = [];
+                times.forEach(function(t){relTimes = relTimes.concat(t-start);});
+
+                var bins = [];
+                posts.forEach(function(p){
+                    var t = Math.floor((p.data.created_utc - start)/(binWidthInSecs));
+                    if (typeof(bins[t])=="undefined"){
+                        bins[t] =[];
+                        bins[t] = bins[t].concat(p);
+                    }else{
+                        bins[t] = bins[t].concat(p);
+                    }
+                });//end forEach
+
+                for(var i = 0; i<bins.length;i++){
+                    if(typeof(bins[i]) == "undefined"){bins[i]=[]}
+                }
+
+                return [bins,times,relTimes];
+
+            },
+
+
+            wordCountsAtIntervals : function (timeWindowIntervalSecs, posts){
+                var tWin = timeWindowIntervalSecs;
+                var posts = returnUniques(posts);
+                var postData = this.timeBins(posts,tWin);
+                var wordsAtTimes = [];
+                postData[0].forEach(
+                        function(bin){
+                            wordsAtTimes.push(extractTitleWordCountsFromPostArray(bin));
+                        }
+                );
+                return wordsAtTimes;
+            },
+
+
+            makeDataPoints : function(timeWindowWidth){
+                globalAllWordsInfo.updateAll();
+                var dataPointsByTime = [];
+                var allDP = [];
+                var baseline = globalAllWordsInfo.allWordsFreq;
+                var xs = this.wordCountsAtIntervals(timeWindowWidth,globalAllPosts.allPosts);
+
+                for(var i = 0;i<xs.length;i++){
+                    dataPointsByTime[i]= [];
+                    var thisWf = wordCounterToFreq(xs[i]);
+//                    if(i==0){
+//                        (Object.keys(xs[i])).forEach(function(w){
+//                            dataPointsByTime[i].push(new wordDataPoint(w,i,thisWf[w]-globalAllWordsInfo.allWordsFreq[w],10));
+//                        })
+                    console.log(thisWf);
+                    (Object.keys(xs[i])).forEach(function(w){
+                        console.log(w);
+                        allDP.push(new wordDataPoint(w,i,thisWf[w]-globalAllWordsInfo.allWordsFreq[w],10));
+                    })
+
+                }
+                this.dataPoints = allDP;
+
+            },
+
+
+            update : function(timeWindowWidth){
+                this.postsByTime = this.wordCountsAtIntervals(timeWindowWidth,globalAllPosts.allPosts);
+            }
+
+        };
+
+        function wordCounterToFreq(wc){
+            var totalCount = 0;
+            var ks = Object.keys(wc);
+            var wf = {};
+            ks.forEach(function(w){totalCount+=wc[w];});
+            ks.forEach(function(w){wf[w]=wc[w]/totalCount;});
+            return wf;
+        }
+
+
         function isSorted(posts){
             var isSorted = true;
             var sorted = [];
@@ -210,7 +387,7 @@
                 try{
                     sorted.forEach(function(x){
                         if(x==undefined){
-                            null;
+
                         }else if(x.data.created_utc>cur.data.created_utc){
                             isit = false;
                             throw BreakException;
@@ -231,9 +408,10 @@
                     isSorted = false
                     return isSorted;
                 }
-            })
+            });
             return isSorted;
         }
+
 
         function arrayCompare(anArray, accessorFunc, compareFunc){
             var max;
@@ -248,61 +426,7 @@
         }
 
 
-        function extractTitleWords(posts){
 
-            var words = [];
-            posts.forEach(function(p){
-                words = words.concat(p.data.title.replace(/[^\w\s]|_/g, "") //Strips punc
-                             .toLocaleLowerCase().split(" ")); //makes it lowercase and splits
-            });
-
-            wordCounter = {};
-            words.forEach(function(w){
-               if(typeof(wordCounter[w.toLocaleLowerCase()])=="number"){
-                   wordCounter[w.toLocaleLowerCase()]+=1;
-               }else{
-                   wordCounter[w.toLocaleLowerCase()]=1;
-               }
-            });
-
-            //ToDo RETURN WORDS SORTED BY FREQUENCY
-
-            return wordCounter;
-        }//end extract title words
-
-        function wordCountsAtIntervals(timeWindowIntervalSecs, posts){
-            var tWin = timeWindowIntervalSecs;
-            var posts = returnUniques(posts);
-            var postData = timeBins(posts,tWin);
-            var wordsAtTimes = [];
-            postData[0].forEach(
-               function(bin){
-                   wordsAtTimes.push(extractTitleWords(bin));
-               }
-            );
-            return wordsAtTimes;
-        }
-
-        function mapWords(wordsAtTimes){
-            avgWordFreq = {};
-            var allWords = [];
-            wordsAtTimes.forEach(function(t){
-                    allWords = allWords.concat(Object.keys(t));
-            });
-
-            allWords = returnUniques(allWords);
-
-            allWords.forEach(function(w){avgWordFreq[w] = 0;})
-
-            wordsAtTimes.forEach(function(t){
-
-                        var ks = Object.keys(t);
-                        ks.forEach(function(k){avgWordFreq[k]+=t[k]})
-
-                    }
-            );
-
-        }
 
 
 
