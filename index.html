@@ -4,8 +4,6 @@
 		<title>Project 1</title>
 
 		<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-		<script src="http://fb.me/react-0.9.0.min.js"></script>
-		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
         <script src="testData.js"></script>
         <script src="posts1000.js"></script>
 
@@ -29,60 +27,18 @@
 
 
 		<script>
-        function opacityScale(y){
-            if(y==0){
-                return 0.3;
-            } else {
-                return (2*y);
-            }
-        }
-        function mouseover(){
-            d3.select(this).style("opacity", "1.0");
-        }
-        function mouseout(){
-            d3.select(this).style("opacity", function(w){return opacityScale(Math.abs(w.y))});
-        }
+        
 
-        var xScale = d3.scale.linear().domain([0, 20]).range([150,880]);
-		var yScale = d3.scale.linear().domain([-1,1]).range([750,20]);
-		
-		var svg = d3.select("#canvas").append("svg").attr("height", 800).attr("width", 1050);
+		// var input = [
+		// 	{"word": "of", "x": 1, "y": .25},
+		// 	{"word": "the", "x": 40, "y": -.4},
+		// 	{"word": "banana", "x": 85, "y": 0},
+  //           {"word": "mateo", "x": 180, "y": 1},
+  //           {"word": "yum", "x": 100, "y": -.5},
+  //           {"word": "hello", "x": 79, "y": .2},
+  //           {"word": "mateo", "x": 120, "y": -.75}  ];
 
-		var input = [
-			{"word": "of", "x": 1, "y": .25},
-			{"word": "the", "x": 4, "y": -.4},
-			{"word": "banana", "x": 8, "y": 0},
-            {"word": "mateo", "x": 18, "y": 1},
-            {"word": "yum", "x": 10, "y": -.5},
-            {"word": "hello", "x": 7, "y": .2},
-            {"word": "mateo", "x": 12, "y": -.75}  ];
 
-  			var words = svg.selectAll("text").data(input).enter().append("text");
-  			var wordAttributes = words
-  				.attr("class", "trending_words")
-  				.attr("x", function(w) {return xScale(w.x);})
-  				.attr("y", function(w) {return yScale(w.y);})
-                .style("fill", function(w){ if(w.y>0){return "#006633"}else if(w.y<0){return "8B1A1A"}else{return "000000"}})
-  				.text(function (w) { return w.word; })
-                .style("opacity", function(w){return opacityScale(Math.abs(w.y))});
-
-            d3.selectAll("text").on('mouseover', mouseover).on('mouseout', mouseout);
-
-            
-            
-            
-
-  		svg.append("text").attr("x", xScale(-3)).attr("y", yScale(0)).text("Time Blocks");
-  		svg.append("text").attr("x", xScale(-11)).attr("y", yScale(.8)).text("Trending Status").attr("transform", "rotate(-90)");
-  		svg.append("text").attr("x", xScale(-12)).attr("y", yScale(.77)).text("(is popularity increasing or decreasing over time)").attr("transform", "rotate(-90)").attr("font-size", "8pt");
-  		
-
-		var xAxis = d3.svg.axis().scale(xScale);
-
-		svg.append("g").attr("class", "axis").attr("transform", "translate(0, " + yScale(0) + ")").call(xAxis);
-
-		var yAxis = d3.svg.axis().scale(yScale).orient("left");
-		svg.append("g").attr("class", "axis").attr("transform", "translate(" + xScale(0) + ", 0)").call(yAxis);
 
 
 
@@ -195,13 +151,13 @@
                         //console.log("acc length="+this.acc.length);
                         //console.log(this.nextURL);
 
-                        console.log("Querried: "+url);
-                        console.log("nextURL:  "+this.nextURL);
-                        console.log(data.data.after);
+                        // console.log("Querried: "+url);
+                        // console.log("nextURL:  "+this.nextURL);
+                        // console.log(data.data.after);
                         this.prevData = data;
                         this.acc = this.acc.concat(data.data.children);
                         this.nextPageURL(data);
-                        console.log("NEW nextURL:  "+this.nextURL);
+                        // console.log("NEW nextURL:  "+this.nextURL);
 
                         //console.log(data);
                         //console.log("acc length="+this.acc.length);
@@ -350,9 +306,9 @@
 //                        (Object.keys(xs[i])).forEach(function(w){
 //                            dataPointsByTime[i].push(new wordDataPoint(w,i,thisWf[w]-globalAllWordsInfo.allWordsFreq[w],10));
 //                        })
-                    console.log(thisWf);
+                    //console.log(thisWf);
                     (Object.keys(xs[i])).forEach(function(w){
-                        console.log(w);
+                        //console.log(w);
                         allDP.push(new wordDataPoint(w,i,thisWf[w]-globalAllWordsInfo.allWordsFreq[w],10));
                     })
 
@@ -425,8 +381,60 @@
             return max;
         }
 
+        function opacityScale(y){
+            if(y==0){
+                return 0.3;
+            } else {
+                return (200*y);
+            }
+        }
+        function mouseover(){
+            d3.select(this).style("opacity", "1.0").style("fill", "blue");
+        }
+        function mouseout(){
+            d3.select(this).style("opacity", function(w){return opacityScale(Math.abs(w.y))}).style("fill", function(w){return chooseColor(w.y)});
+        }
+        function chooseColor(y){
+            if(y>0){return "#006633"}else if(y<0){return "8B1A1A"}else{return "000000"}
+        }
+
+        var xScale = d3.scale.linear().domain([-2, 15]).range([150,880]);
+        var yScale = d3.scale.linear().domain([-0.03,0.03]).range([750,20]);
+        
+        var svg = d3.select("#canvas").append("svg").attr("height", 800).attr("width", 1050);
 
 
+        globalAllWordsInfo.updateAll();
+        relWordFreqDataPoints.makeDataPoints(300);
+        var input = relWordFreqDataPoints.dataPoints;
+
+
+            var words = svg.selectAll("text").data(input).enter().append("text");
+            var wordAttributes = words
+                .attr("class", "trending_words")
+                .attr("x", function(w) {return xScale(w.x);})
+                .attr("y", function(w) {return yScale(w.y);})
+                .style("fill", function(w){ return chooseColor(w.y);})
+                .text(function (w) { return w.word; })
+                .style("opacity", function(w){return opacityScale(Math.abs(w.y))});
+
+            d3.selectAll("text").on('mouseover', mouseover).on('mouseout', mouseout);
+
+            
+            
+            
+
+        svg.append("text").attr("x", xScale(-50)).attr("y", yScale(0)).text("Time Blocks");
+        svg.append("text").attr("x", xScale(-150)).attr("y", yScale(.9)).text("Trending Status").attr("transform", "rotate(-90)");
+        svg.append("text").attr("x", xScale(-170)).attr("y", yScale(.85)).text("(is popularity increasing or decreasing over time)").attr("transform", "rotate(-90)").attr("font-size", "8pt");
+        
+
+        var xAxis = d3.svg.axis().scale(xScale);
+
+        svg.append("g").attr("class", "axis").attr("transform", "translate(0, " + yScale(0) + ")").call(xAxis);
+
+        var yAxis = d3.svg.axis().scale(yScale).orient("left");
+        svg.append("g").attr("class", "axis").attr("transform", "translate(" + xScale(0) + ", 0)").call(yAxis);
 
 
 
