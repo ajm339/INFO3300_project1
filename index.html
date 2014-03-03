@@ -474,7 +474,6 @@
                 .style("opacity", function(w){return opacityScale(Math.abs(w.y))});
         }
         function initializePlot(){
-            var words = svg.selectAll("text").data(input).enter().append("text");
             plotWords(words);
             plotScales();
         }
@@ -488,39 +487,19 @@
         globalAllWordsInfo.updateAll();
         relWordFreqDataPoints.makeDataPoints(300);
         var input = relWordFreqDataPoints.dataPoints;
-
+        var words = svg.selectAll("text").data(input).enter().append("text");
         initializePlot();
 
-        d3.selectAll("text").on('mouseover', mouseover).on('mouseout', mouseout);
+        d3.selectAll("trending_words").on('mouseover', mouseover).on('mouseout', mouseout);
 
-        d3.selectAll("text").on('click', function(){
+        d3.selectAll(".trending_words").on('click', function(){
             var selected_word = d3.select(this).text();
-            console.log(selected_word);
-            d3.select("svg").remove();
-            svg = d3.select("#canvas").append("svg").attr("height", 800).attr("width", 1050);
-            var this_word = onlyThisWord(selected_word, input);
-            var only_selected_word = svg.selectAll("text").data(this_word).enter().append("text");
-            plotWords(only_selected_word);
-            plotScales();
+            words.attr('display', function(w){ if(w.word==selected_word){ return 'block';} else  { return 'none';}});
         });
 
         $('#reset').on('click', function(){
             console.log('clicky');
-            d3.select("svg").remove();
-            svg = d3.select("#canvas").append("svg").attr("height", 800).attr("width", 1050);
-            initializePlot();
-
-            d3.selectAll("text").on('click', function(){
-                var selected_word = d3.select(this).text();
-                console.log(selected_word);
-                d3.select("svg").remove();
-                svg = d3.select("#canvas").append("svg").attr("height", 800).attr("width", 1050);
-                var this_word = onlyThisWord(selected_word, input);
-                var only_selected_word = svg.selectAll("text").data(this_word).enter().append("text");
-                plotWords(only_selected_word);
-                plotScales();
-            });
-            
+            words.attr('display', 'inline');
         });
             
             
