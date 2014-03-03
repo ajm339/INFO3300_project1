@@ -8,6 +8,8 @@
         <script src="testData.js"></script>
         <script src="posts1000.js"></script>
         <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+        <link rel="icon" href="favicon.ico" type="image/x-icon">
 
 
 		<style>
@@ -567,7 +569,7 @@
 
         //****Write the graph
             //create the x and y scale
-            var xScale = d3.scale.linear().domain([-2, 15]).range([150,1000]);
+            var xScale = d3.scale.linear().domain([-1, 15]).range([950,50]);
             var yScale = d3.scale.linear().domain([-0.02,0.02]).range([750,20]);
             //create the svg 
             var svg = d3.select("#canvas").append("svg").attr("height", 800).attr("width", 1050);
@@ -594,14 +596,14 @@
                 .style("z-index", 5);
 
             //plot scales
-            svg.append("text").attr("x", xScale(-4.25)).attr("y", yScale(0)).text("Time Blocks");
-            svg.append("text").attr("x", xScale(-4.25)).attr("y", yScale(-0.001)).text("(5 min increments)").attr("font-size", "8pt");
-            svg.append("text").attr("x", xScale(-11)).attr("y", yScale(.017)).text("Trending Status").attr("transform", "rotate(-90)");
-            svg.append("text").attr("x", xScale(-12)).attr("y", yScale(.016)).text("(relative word frequency to see if the word").attr("transform", "rotate(-90)").attr("font-size", "8pt");
-            svg.append("text").attr("x", xScale(-12)).attr("y", yScale(.015)).text("popularity increases or decreases over time)").attr("transform", "rotate(-90)").attr("font-size", "8pt");
+            svg.append("text").attr("x", 955).attr("y", yScale(0)).text("Time Blocks");
+            svg.append("text").attr("x", 955).attr("y", yScale(-0.001)).text("(minute increments)").attr("font-size", "8pt");
+            svg.append("text").attr("x", 200).attr("y", -1000).text("Trending Status").attr("transform", "rotate(90)");
+            svg.append("text").attr("x", 150).attr("y", -980).text("(relative word frequency to see if the word").attr("transform", "rotate(90)").attr("font-size", "8pt");
+            svg.append("text").attr("x", 150).attr("y", -960).text("popularity increases or decreases over time)").attr("transform", "rotate(90)").attr("font-size", "8pt");
 
             var formatTime = function(d) {
-                return  (NUMDATAPOINTS*d/60);      
+                return  (NUMDATAPOINTS*d/60*-1);      
             }
             var xAxis = d3.svg.axis().scale(xScale).tickFormat(formatTime);
             svg.append("g").attr("class", "axis").attr("transform", "translate(0, " + yScale(0) + ")").call(xAxis);
