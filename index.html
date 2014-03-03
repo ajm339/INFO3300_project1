@@ -6,6 +6,7 @@
 		<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
         <script src="testData.js"></script>
         <script src="posts1000.js"></script>
+        <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 
 
 		<style>
@@ -18,6 +19,7 @@
 			text.trending_words { font-size: small; font-family: "Helvetica"; text-anchor: middle; alignment-baseline: central; cursor: pointer;}
 			text.trending_words:hover {font-weight: bold; font-size: xx-large; z-index: 99;}
             text.trending_words.opacity{opacity: '1.0'}
+            .hide{display:none;}
 		</style>
 	</head>
 
@@ -27,6 +29,7 @@
 		<h1>Project 1, Relative Trending Word Frequencies on Reddit</h1>
         <h2>Alex Meyers (ajm339), Mateo Acebedo (ma698), William Nebel (wtn5)</h2>
 		<div id='spot'></div>
+        <button id='reset'>Reset</button>
 		<div id='canvas'></div>
 
 
@@ -443,45 +446,89 @@
         function chooseColor(y){
             if(y>0){return "#006633"}else if(y<0){return "8B1A1A"}else{return "000000"}
         }
-
-        var xScale = d3.scale.linear().domain([-2, 15]).range([150,880]);
-        var yScale = d3.scale.linear().domain([-0.005,0.02]).range([750,20]);
-        
-        var svg = d3.select("#canvas").append("svg").attr("height", 800).attr("width", 1050);
-
-
-        globalAllWordsInfo.updateAll();
-        relWordFreqDataPoints.makeDataPoints(200);
-        var input = relWordFreqDataPoints.dataPoints;
-
-
-            var words = svg.selectAll("text").data(input).enter().append("text");
-            var wordAttributes = words
+        function onlyThisWord(word, input){
+            var accumulator = [];
+            input.forEach(function(datapoint){
+                if(datapoint.word == word){
+                    accumulator.push(datapoint);
+                }
+            });
+            return accumulator;
+        }
+        function plotScales(){
+            svg.append("text").attr("x", xScale(-3)).attr("y", yScale(.001)).text("Time Blocks");
+            svg.append("text").attr("x", xScale(-14)).attr("y", yScale(.017)).text("Trending Status").attr("transform", "rotate(-90)");
+            svg.append("text").attr("x", xScale(-15)).attr("y", yScale(.016)).text("(is popularity increasing or decreasing over time)").attr("transform", "rotate(-90)").attr("font-size", "8pt");
+            var xAxis = d3.svg.axis().scale(xScale);
+            svg.append("g").attr("class", "axis").attr("transform", "translate(0, " + yScale(0) + ")").call(xAxis);
+            var yAxis = d3.svg.axis().scale(yScale).orient("left");
+            svg.append("g").attr("class", "axis").attr("transform", "translate(" + xScale(0) + ", 0)").call(yAxis);
+        }
+        function plotWords(words){
+            words
                 .attr("class", "trending_words")
                 .attr("x", function(w) {return xScale(w.x);})
                 .attr("y", function(w) {return yScale(w.y);})
                 .style("fill", function(w){ return chooseColor(w.y);})
                 .text(function (w) { return w.word; })
                 .style("opacity", function(w){return opacityScale(Math.abs(w.y))});
+        }
+        function initializePlot(){
+            var words = svg.selectAll("text").data(input).enter().append("text");
+            plotWords(words);
+            plotScales();
+        }
 
-            d3.selectAll("text").on('mouseover', mouseover).on('mouseout', mouseout);
+        var xScale = d3.scale.linear().domain([-2, 15]).range([150,1000]);
+        var yScale = d3.scale.linear().domain([-0.02,0.02]).range([750,20]);
+        
+        var svg = d3.select("#canvas").append("svg").attr("height", 800).attr("width", 1050);
 
+
+        globalAllWordsInfo.updateAll();
+        relWordFreqDataPoints.makeDataPoints(300);
+        var input = relWordFreqDataPoints.dataPoints;
+
+        initializePlot();
+
+        d3.selectAll("text").on('mouseover', mouseover).on('mouseout', mouseout);
+
+        d3.selectAll("text").on('click', function(){
+            var selected_word = d3.select(this).text();
+            console.log(selected_word);
+            d3.select("svg").remove();
+            svg = d3.select("#canvas").append("svg").attr("height", 800).attr("width", 1050);
+            var this_word = onlyThisWord(selected_word, input);
+            var only_selected_word = svg.selectAll("text").data(this_word).enter().append("text");
+            plotWords(only_selected_word);
+            plotScales();
+        });
+
+        $('#reset').on('click', function(){
+            console.log('clicky');
+            d3.select("svg").remove();
+            svg = d3.select("#canvas").append("svg").attr("height", 800).attr("width", 1050);
+            initializePlot();
+
+            d3.selectAll("text").on('click', function(){
+                var selected_word = d3.select(this).text();
+                console.log(selected_word);
+                d3.select("svg").remove();
+                svg = d3.select("#canvas").append("svg").attr("height", 800).attr("width", 1050);
+                var this_word = onlyThisWord(selected_word, input);
+                var only_selected_word = svg.selectAll("text").data(this_word).enter().append("text");
+                plotWords(only_selected_word);
+                plotScales();
+            });
+            
+        });
             
             
-            
 
-        svg.append("text").attr("x", xScale(-3)).attr("y", yScale(.001)).text("Time Blocks");
-        svg.append("text").attr("x", xScale(-14)).attr("y", yScale(.017)).text("Trending Status").attr("transform", "rotate(-90)");
-        svg.append("text").attr("x", xScale(-15)).attr("y", yScale(.016)).text("(is popularity increasing or decreasing over time)").attr("transform", "rotate(-90)").attr("font-size", "8pt");
+        
         
 
-        var xAxis = d3.svg.axis().scale(xScale);
-
-        svg.append("g").attr("class", "axis").attr("transform", "translate(0, " + yScale(0) + ")").call(xAxis);
-
-        var yAxis = d3.svg.axis().scale(yScale).orient("left");
-        svg.append("g").attr("class", "axis").attr("transform", "translate(" + xScale(0) + ", 0)").call(yAxis);
-
+       
 
 
 		</script>
