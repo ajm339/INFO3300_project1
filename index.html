@@ -107,7 +107,7 @@
 
 
 
-        //
+        //Notes
         // globalAllWordsInfo.updateAll()
         // relWordFreqDataPoints.makeDataPoints(300)   the 300 is the size of the time window in seconds
         // relWordFreqDataPoints.dataPoints            returns all the dataPoint Objects
@@ -266,8 +266,6 @@
                         unqs = unqs.concat(this.acc[i]);
                     }
                 }
-                //console.log(this.acc.length);
-                //console.log(unqs.length);
             },
 
             // gets n pages of k posts using a timed JS function
@@ -285,14 +283,6 @@
                         writeGraph();
                     }
                 },2000);
-
-                
-                
-
-                //ALEX UPDATE SVG FUNCTION
-               
-
-
             }
 
         };//end globalGetter
@@ -410,20 +400,6 @@
 
                 var xs = this.wordCountsAtIntervals(timeWindowWidth,globalAllPosts.allPosts);
 
-//                for(i = 0;i<xs.length;i++){
-//                    dataPointsByTime[i]= [];
-//                    thisWf = wordCounterToFreq(xs[i]);
-////                    if(i==0){
-////                        (Object.keys(xs[i])).forEach(function(w){
-////                            dataPointsByTime[i].push(new WordDataPoint(w,i,thisWf[w]-globalAllWordsInfo.allWordsFreq[w],10));
-////                        })
-//                    //console.log(thisWf);
-//                    (Object.keys(xs[i])).forEach(function(w){
-//                        //console.log(w);
-//                        allDP.push(new WordDataPoint(w,i,thisWf[w]-globalAllWordsInfo.allWordsFreq[w],10));
-//                    })
-//
-//                }
                 this.dataPoints = allDP;
 
                 var allw = globalAllWordsInfo.allWords;
@@ -623,7 +599,11 @@
             svg.append("text").attr("x", xScale(-11)).attr("y", yScale(.017)).text("Trending Status").attr("transform", "rotate(-90)");
             svg.append("text").attr("x", xScale(-12)).attr("y", yScale(.016)).text("(relative word frequency to see if the word").attr("transform", "rotate(-90)").attr("font-size", "8pt");
             svg.append("text").attr("x", xScale(-12)).attr("y", yScale(.015)).text("popularity increases or decreases over time)").attr("transform", "rotate(-90)").attr("font-size", "8pt");
-            var xAxis = d3.svg.axis().scale(xScale);
+
+            var formatTime = function(d) {
+                return  (NUMDATAPOINTS*d/60);      
+            }
+            var xAxis = d3.svg.axis().scale(xScale).tickFormat(formatTime);
             svg.append("g").attr("class", "axis").attr("transform", "translate(0, " + yScale(0) + ")").call(xAxis);
             var yAxis = d3.svg.axis().scale(yScale).orient("left");
             svg.append("g").attr("class", "axis").attr("transform", "translate(" + xScale(-1) + ", 0)").call(yAxis);
@@ -652,12 +632,7 @@
 
         }//End Write Graph
         
-
        globalGetter.get_n_pages_of_k_posts(10, 25);
-
-      
-
-
 		</script>
 	</body>
 </html>
