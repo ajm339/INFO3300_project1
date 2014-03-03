@@ -11,54 +11,122 @@
 
 
 		<style>
-            h1{text-align: center;}
-            h2{text-align: center;}
-			svg { border: solid black 1px;}
-            #canvas {position: absolute; left:5%; top: 22%;}
+            body{background-image:url('reddit.jpg'); background-repeat:no-repeat; background-size: cover; background-color: #000000;}
+            h1{text-align: center; font-family: "Helvetica"; font-weight: 200; font-size: 40pt; color:white;}
+            h2{text-align: center; font-family: "Helvetica"; font-weight: 200; font-size: 30pt; color:white;}
+            p{text-align: center; font-family: "Helvetica"; font-weight: 200; font-size: 20pt; color:gray;}
+			svg { border: solid black 1px; background-color: #FFFFFF;}
+            #canvas {display: block; text-align: center;}
 			.axis path { fill: none; stroke: black;}
 			.axis line { stroke: black; }
 			text.trending_words { font-size: small; font-family: "Helvetica"; text-anchor: middle; alignment-baseline: central; cursor: pointer;}
 			text.trending_words:hover {font-weight: bold; font-size: xx-large; z-index: 99;}
             text.trending_words.opacity{opacity: '1.0'}
             .hide{display:none;}
+            .group_buttons{margin: 20px auto 20px auto; display: block; text-align: center;}
+            #title{
+                border:solid;
+                border-width:1px;
+                border-color: orange;
+                width:90%;
+                margin:auto;
+            }
+
+            .button {
+                cursor: pointer;
+                -moz-box-shadow:inset 0px 1px 0px 0px #f5978e;
+                -webkit-box-shadow:inset 0px 1px 0px 0px #f5978e;
+                box-shadow:inset 0px 1px 0px 0px #f5978e;
+                background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #f24537), color-stop(1, #c62d1f) );
+                background:-moz-linear-gradient( center top, #f24537 5%, #c62d1f 100% );
+                filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f24537', endColorstr='#c62d1f');
+                background-color:#f24537;
+                -webkit-border-top-left-radius:37px;
+                -moz-border-radius-topleft:37px;
+                border-top-left-radius:37px;
+                -webkit-border-top-right-radius:0px;
+                -moz-border-radius-topright:0px;
+                border-top-right-radius:0px;
+                -webkit-border-bottom-right-radius:37px;
+                -moz-border-radius-bottomright:37px;
+                border-bottom-right-radius:37px;
+                -webkit-border-bottom-left-radius:0px;
+                -moz-border-radius-bottomleft:0px;
+                border-bottom-left-radius:0px;
+                text-indent:0;
+                border:1px solid #d02718;
+                display:inline-block;
+                color:#ffffff;
+                font-family:Arial;
+                font-size:15px;
+                font-weight:bold;
+                font-style:normal;
+                height:40px;
+                line-height:40px;
+                width:200px;
+                text-decoration:none;
+                text-align:center;
+                text-shadow:1px 1px 0px #810e05;
+            }
+            .button:hover {
+                background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #c62d1f), color-stop(1, #f24537) );
+                background:-moz-linear-gradient( center top, #c62d1f 5%, #f24537 100% );
+                filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#c62d1f', endColorstr='#f24537');
+                background-color:#c62d1f;
+            }.button:active {
+                position:relative;
+                top:1px;
+            }
+            /* This button was generated using CSSButtonGenerator.com */
 		</style>
 	</head>
 
 
 
 	<body>
-		<h1>Project 1, Relative Trending Word Frequencies on Reddit</h1>
-        <h2>Alex Meyers (ajm339), Mateo Acebedo (ma698), William Nebel (wtn5)</h2>
-		<div id='spot'></div>
-        <button id='reset'>Reset</button>
-		<div id='canvas'></div>
+        <div id='title'>
+		  <h1>Project 1, Relative Trending Word Frequencies on Reddit</h1>
+            <h2>Alex Meyers (ajm339), Mateo Acebedo (ma698), William Nebel (wtn5)</h2>
+        </div>
+        <div id='container'>
+            
+                <p>Click on a word to isolate it and see it's trend</p>
+                <div class="group_buttons">
+                    <a class="button" id='live'>Live Feed</a>
+                    <a class="button" id='stored'>Stored Dataset</a>
+                    <a class="button" id='reset'>Reset Graph</a>
+                </div>
+                <p>Note: The Live Feed may take a minute, just hold tight!</p>
+            
+    		<div id='canvas'></div>
+        </div>
 
 
 		<script>
-        
-
-		// var input = [
-		// 	{"word": "of", "x": 1, "y": .25},
-		// 	{"word": "the", "x": 40, "y": -.4},
-		// 	{"word": "banana", "x": 85, "y": 0},
-  //           {"word": "mateo", "x": 180, "y": 1},
-  //           {"word": "yum", "x": 100, "y": -.5},
-  //           {"word": "hello", "x": 79, "y": .2},
-  //           {"word": "mateo", "x": 120, "y": -.75}  ];
+        var NUMDATAPOINTS = 120;
 
 
 
-
-
-
-//
-        // ALEX THESE ARE THE TWO CALLS YOU NEED TO MAKE
-        //
+        //Notes
         // globalAllWordsInfo.updateAll()
         // relWordFreqDataPoints.makeDataPoints(300)   the 300 is the size of the time window in seconds
         // relWordFreqDataPoints.dataPoints            returns all the dataPoint Objects
 
 
+        $('#live').on('click', function(){
+            d3.select("svg").remove();
+            NUMDATAPOINTS = 120;
+            globalAllPosts.allPosts = [];
+            globalGetter.get_n_pages_of_k_posts(10,25);
+        });
+
+        $('#stored').on('click', function(){
+            d3.select("svg").remove();
+            NUMDATAPOINTS = 300;
+            globalAllPosts.allPosts = [];
+            globalAllPosts.addPosts(posts1000);
+            writeGraph();
+        });
 
 
         //maintains an object of all the posts collected.
@@ -130,7 +198,7 @@
             numWordsCounted : 0,
 
             updateAll : function(){
-                globalAllWordsInfo.allWordsCounter= sortWordCounterByFreq(extractTitleWordCountsFromPostArray(globalAllPosts.allPosts));
+                globalAllWordsInfo.allWordsCounter= extractTitleWordCountsFromPostArray(globalAllPosts.allPosts);
                 globalAllWordsInfo.allWords = Object.keys(this.allWordsCounter);
                 globalAllWordsInfo.allWords.forEach(function(w){globalAllWordsInfo.numWordsCounted +=globalAllWordsInfo.allWordsCounter[w];});
                 globalAllWordsInfo.allWords.forEach(function(w){globalAllWordsInfo.allWordsFreq[w]= ((globalAllWordsInfo.allWordsCounter[w])/(globalAllWordsInfo.numWordsCounted))});
@@ -198,8 +266,6 @@
                         unqs = unqs.concat(this.acc[i]);
                     }
                 }
-                //console.log(this.acc.length);
-                //console.log(unqs.length);
             },
 
             // gets n pages of k posts using a timed JS function
@@ -210,18 +276,16 @@
                     getNPagesCt ++;
                     if (getNPagesCt >= pagesLim){
                         clearInterval(getNPages);
+                        globalAllPosts.addPosts(globalGetter.acc);
+                        globalGetter.acc = [];
+                        globalGetter.apiCount = 0;
+                        globalGetter.nextURL = null;
+                        writeGraph();
                     }
-                    console.log(globalGetter.acc.length);
-                    },2000);
-
-                globalAllPosts.addPosts(globalGetter.acc);
-                globalGetter.acc = [];
-                globalGetter.apiCount = 0;
-                globalGetter.nextURL = null;
+                },2000);
             }
 
         };//end globalGetter
-
 
         //another global copy of return uniques, because why not!
         function returnUniques(arg){
@@ -336,20 +400,6 @@
 
                 var xs = this.wordCountsAtIntervals(timeWindowWidth,globalAllPosts.allPosts);
 
-//                for(i = 0;i<xs.length;i++){
-//                    dataPointsByTime[i]= [];
-//                    thisWf = wordCounterToFreq(xs[i]);
-////                    if(i==0){
-////                        (Object.keys(xs[i])).forEach(function(w){
-////                            dataPointsByTime[i].push(new WordDataPoint(w,i,thisWf[w]-globalAllWordsInfo.allWordsFreq[w],10));
-////                        })
-//                    //console.log(thisWf);
-//                    (Object.keys(xs[i])).forEach(function(w){
-//                        //console.log(w);
-//                        allDP.push(new WordDataPoint(w,i,thisWf[w]-globalAllWordsInfo.allWordsFreq[w],10));
-//                    })
-//
-//                }
                 this.dataPoints = allDP;
 
                 var allw = globalAllWordsInfo.allWords;
@@ -477,91 +527,112 @@
         //this adds the JS file containing 1000 posts 
         globalAllPosts.addPosts(posts1000);
 
+        globalAllPosts.allPosts = [];
+        
 
+        //*******Graph functionality
+        function writeGraph(){
 
-
-
-
-        function opacityScale(y){
-            if(y==0){
-                return 0.3;
-            } else {
-                return (200*y);
-            }
-        }
-        function mouseover(){
-            d3.select(this).style("opacity", "1.0").style("fill", "blue");
-        }
-        function mouseout(){
-            d3.select(this).style("opacity", function(w){return opacityScale(Math.abs(w.y))}).style("fill", function(w){return chooseColor(w.y)});
-        }
-        function chooseColor(y){
-            if(y>0){return "#006633"}else if(y<0){return "8B1A1A"}else{return "000000"}
-        }
-        function onlyThisWord(word, input){
-            var accumulator = [];
-            input.forEach(function(datapoint){
-                if(datapoint.word == word){
-                    accumulator.push(datapoint);
+        //****Helper Functions:
+            //Changes font size based on the z attribute of the input
+            function fontSizeScale(z){
+                if (z<.00001){
+                    return 2;
+                } else if (z<.00005){
+                    return 4;
+                } else if (z<.00009){
+                    return 7;
+                } else if (z<.00015){
+                    return 12;
+                } else if (z<.00021){
+                    return 18;
+                } else if (z<.00027){
+                    return 22;
+                } else {
+                    return 26;
                 }
-            });
-            return accumulator;
-        }
-        function plotScales(){
-            svg.append("text").attr("x", xScale(-3)).attr("y", yScale(.001)).text("Time Blocks");
-            svg.append("text").attr("x", xScale(-14)).attr("y", yScale(.017)).text("Trending Status").attr("transform", "rotate(-90)");
-            svg.append("text").attr("x", xScale(-15)).attr("y", yScale(.016)).text("(is popularity increasing or decreasing over time)").attr("transform", "rotate(-90)").attr("font-size", "8pt");
-            var xAxis = d3.svg.axis().scale(xScale);
-            svg.append("g").attr("class", "axis").attr("transform", "translate(0, " + yScale(0) + ")").call(xAxis);
-            var yAxis = d3.svg.axis().scale(yScale).orient("left");
-            svg.append("g").attr("class", "axis").attr("transform", "translate(" + xScale(0) + ", 0)").call(yAxis);
-        }
-        function plotWords(words){
+            }
+            //changes the opacity based on relative position to 0 on the y-axis
+            function opacityScale(y){
+                if(y==0){
+                    return 0.3;
+                } else {
+                    return (200*y);
+                }
+            }
+            //changes color based on whether the word is gaining popularity (orange like reddit upvote) or losing popularity (blue like reddit downvote)
+            function chooseColor(y){
+                if(y>0){return "orange"}else if(y<0){return "blue"}else{return "grey"}
+            }
+
+        //****Write the graph
+            //create the x and y scale
+            var xScale = d3.scale.linear().domain([-2, 15]).range([150,1000]);
+            var yScale = d3.scale.linear().domain([-0.02,0.02]).range([750,20]);
+            //create the svg 
+            var svg = d3.select("#canvas").append("svg").attr("height", 800).attr("width", 1050);
+
+            //grab the information to be plotted
+            globalAllWordsInfo.updateAll();
+
+
+            relWordFreqDataPoints.makeDataPoints(NUMDATAPOINTS);
+
+
+            var input = relWordFreqDataPoints.dataPoints;
+            var words = svg.selectAll("text").data(input).enter().append("text");
+
+            //plot words
             words
                 .attr("class", "trending_words")
                 .attr("x", function(w) {return xScale(w.x);})
                 .attr("y", function(w) {return yScale(w.y);})
                 .style("fill", function(w){ return chooseColor(w.y);})
+                .style("font-size", function(w){ return fontSizeScale(w.z);})
                 .text(function (w) { return w.word; })
-                .style("opacity", function(w){return opacityScale(Math.abs(w.y))});
-        }
-        function initializePlot(){
-            plotWords(words);
-            plotScales();
-        }
+                .style("opacity", function(w){return opacityScale(Math.abs(w.y))})
+                .style("z-index", 5);
 
-        var xScale = d3.scale.linear().domain([-2, 15]).range([150,1000]);
-        var yScale = d3.scale.linear().domain([-0.02,0.02]).range([750,20]);
+            //plot scales
+            svg.append("text").attr("x", xScale(-4.25)).attr("y", yScale(0)).text("Time Blocks");
+            svg.append("text").attr("x", xScale(-4.25)).attr("y", yScale(-0.001)).text("(5 min increments)").attr("font-size", "8pt");
+            svg.append("text").attr("x", xScale(-11)).attr("y", yScale(.017)).text("Trending Status").attr("transform", "rotate(-90)");
+            svg.append("text").attr("x", xScale(-12)).attr("y", yScale(.016)).text("(relative word frequency to see if the word").attr("transform", "rotate(-90)").attr("font-size", "8pt");
+            svg.append("text").attr("x", xScale(-12)).attr("y", yScale(.015)).text("popularity increases or decreases over time)").attr("transform", "rotate(-90)").attr("font-size", "8pt");
+
+            var formatTime = function(d) {
+                return  (NUMDATAPOINTS*d/60);      
+            }
+            var xAxis = d3.svg.axis().scale(xScale).tickFormat(formatTime);
+            svg.append("g").attr("class", "axis").attr("transform", "translate(0, " + yScale(0) + ")").call(xAxis);
+            var yAxis = d3.svg.axis().scale(yScale).orient("left");
+            svg.append("g").attr("class", "axis").attr("transform", "translate(" + xScale(-1) + ", 0)").call(yAxis);
+
+            d3.selectAll(".trending_words").on('mouseover', mouseover).on('mouseout', mouseout);
+            //on mouse over, make more apparent the word being viewed
+            function mouseover(){
+                d3.selectAll('.trending_words').style('z-index', 1);
+                d3.select(this).style("opacity", "1.0").style("fill", "green").style("z-index", 99);
+            }
+            // on mouse out, return the word to its initial state
+            function mouseout(){
+                d3.select(this).style("opacity", function(w){return opacityScale(Math.abs(w.y))}).style("fill", function(w){return chooseColor(w.y)}).style("z-index", 5);
+            }
+            //on mouse click, only show the word in question, hide all others
+            d3.selectAll(".trending_words").on('click', function(){
+                var selected_word = d3.select(this).text();
+                console.log(selected_word);
+                words.attr('opacity', 1.0).attr('display', function(w){ if(w.word==selected_word){ return 'block';} else  { return 'none';}});
+            });
+            //return the graph to its initial state
+            $('#reset').on('click', function(){
+                console.log('clicky');
+                words.attr('display', 'inline').attr('opacity', function(w){return opacityScale(Math.abs(w.y))});
+            });
+
+        }//End Write Graph
         
-        var svg = d3.select("#canvas").append("svg").attr("height", 800).attr("width", 1050);
-
-
-        globalAllWordsInfo.updateAll();
-        relWordFreqDataPoints.makeDataPoints(300);
-        var input = relWordFreqDataPoints.dataPoints;
-        var words = svg.selectAll("text").data(input).enter().append("text");
-        initializePlot();
-
-        d3.selectAll("trending_words").on('mouseover', mouseover).on('mouseout', mouseout);
-
-        d3.selectAll(".trending_words").on('click', function(){
-            var selected_word = d3.select(this).text();
-            words.attr('display', function(w){ if(w.word==selected_word){ return 'block';} else  { return 'none';}});
-        });
-
-        $('#reset').on('click', function(){
-            console.log('clicky');
-            words.attr('display', 'inline');
-        });
-            
-            
-
-        
-        
-
-       
-
-
+       globalGetter.get_n_pages_of_k_posts(10, 25);
 		</script>
 	</body>
 </html>
