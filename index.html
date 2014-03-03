@@ -4,6 +4,7 @@
 		<title>Project 1</title>
 
 		<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+        <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
         <script src="testData.js"></script>
         <script src="posts1000.js"></script>
         <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
@@ -71,8 +72,6 @@
         };
 
 
-        globalAllPosts.addPosts(posts1000);
-
 
         function WordDataPoint(word,x,y,z){
             this.word = word;
@@ -123,21 +122,24 @@
         var globalGetter = {
             reqSize : 25,
             acc : [],
-            baseURL : "http://www.reddit.com/new/.json?&limit=25",
+            //baseURL : "http://www.reddit.com/new/.json?&limit=25",
+            baseURL : function(limit){
+                return ("http://www.reddit.com/new/.json?&limit="+limit);
+            },
             nextURL : null,
             apiCount : 0,
             prevData: null,
 
 
-            nextPageURL: function(data){
-                this.apiCount+=25;
-                this.nextURL = (this.baseURL+"&count="+this.apiCount+"&after="+data.data.after);
+            nextPageURL: function(data,limit){
+                this.apiCount+=limit;
+                this.nextURL = (this.baseURL(limit)+"&count="+this.apiCount+"&after="+data.data.after);
             },
 
-            requestAPage : function(){
+            request_page_of_n_posts : function(nPosts){
                 var url;
                 if (this.nextURL==null){
-                    url = this.baseURL;
+                    url = this.baseURL(nPosts);
                 }else{
                     url = this.nextURL;
                 }
@@ -154,7 +156,7 @@
                         // console.log(data.data.after);
                         this.prevData = data;
                         this.acc = this.acc.concat(data.data.children);
-                        this.nextPageURL(data);
+                        this.nextPageURL(data,nPosts);
                         // console.log("NEW nextURL:  "+this.nextURL);
 
                         //console.log(data);
@@ -177,16 +179,21 @@
                 //console.log(unqs.length);
             },
 
-            getData : function(){
+            get_n_pages_of_k_posts : function(pagesLim,postsLim){
                 var getNPagesCt = 0;
-                var get10pages = setInterval(function(){
-                    globalGetter.requestAPage();
+                var getNPages = setInterval(function(){
+                    globalGetter.request_page_of_n_posts(postsLim);
                     getNPagesCt ++;
-                    if (getNPagesCt >= 10){
-                        clearInterval(get10pages);
+                    if (getNPagesCt >= pagesLim){
+                        clearInterval(getNPages);
                     }
                     console.log(globalGetter.acc.length);
                     },2000);
+
+                globalAllPosts.addPosts(globalGetter.acc);
+                globalGetter.acc = [];
+                globalGetter.apiCount = 0;
+                globalGetter.nextURL = null;
             }
 
         };//end globalGetter
@@ -320,11 +327,13 @@
 
                 dataPointsByTime = [];
                 allDP = [];
+                var prevWf;
 
                 for(i = 0; i<xs.length; i++){
 
                     dataPointsByTime[i]={};
                     thisWf = wordCounterToFreq(xs[i]);
+
                     allw.forEach(function(w){
                         if(thisWf[w]==undefined){
                             thisWf[w]=0;
@@ -340,16 +349,25 @@
                         });
 
                     }else{
+                        prevWf = wordCounterToFreq(xs[i-1]);
                         allw.forEach(function(w){
-                            dataPointsByTime[i][w]=thisWf[w]-dataPointsByTime[i-1][w];
+                            if(prevWf[w]==undefined){
+                                prevWf[w]=0;
+                            }
+
+
+                        }); //set prevWf freqs to 0 if not present
+
+                        allw.forEach(function(w){
+                            dataPointsByTime[i][w]=thisWf[w]-prevWf[w];
                         });
                     }
                 }
 
                 for(i = 0; i<xs.length; i++){
                     allw.forEach(function(w){
-                        if(w.length > 5){
-                            allDP.push(new WordDataPoint(w,i,dataPointsByTime[i][w],10));
+                        if(w.length > 3 && w.length <20){
+                            allDP.push(new WordDataPoint(w,i,dataPointsByTime[i][w],globalAllWordsInfo.allWordsFreq[w]));
                         }
 
                     });
@@ -423,7 +441,7 @@
             return max;
         }
 
-
+        globalAllPosts.addPosts(posts1000);
 
 
 
