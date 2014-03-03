@@ -35,20 +35,6 @@
 
 
 		<script>
-        
-
-		// var input = [
-		// 	{"word": "of", "x": 1, "y": .25},
-		// 	{"word": "the", "x": 40, "y": -.4},
-		// 	{"word": "banana", "x": 85, "y": 0},
-  //           {"word": "mateo", "x": 180, "y": 1},
-  //           {"word": "yum", "x": 100, "y": -.5},
-  //           {"word": "hello", "x": 79, "y": .2},
-  //           {"word": "mateo", "x": 120, "y": -.75}  ];
-
-
-
-
 
 
 //
@@ -99,6 +85,8 @@
 
             //ToDo RETURN WORDS SORTED BY FREQUENCY
 
+
+        
             return wordCounter;
         }
 
@@ -366,7 +354,7 @@
 
                 for(i = 0; i<xs.length; i++){
                     allw.forEach(function(w){
-                        if(w.length > 3 && w.length <20){
+                        if(w.length > 2 && w.length <20){
                             allDP.push(new WordDataPoint(w,i,dataPointsByTime[i][w],globalAllWordsInfo.allWordsFreq[w]));
                         }
 
@@ -455,12 +443,7 @@
                 return (200*y);
             }
         }
-        function mouseover(){
-            d3.select(this).style("opacity", "1.0").style("fill", "blue");
-        }
-        function mouseout(){
-            d3.select(this).style("opacity", function(w){return opacityScale(Math.abs(w.y))}).style("fill", function(w){return chooseColor(w.y)});
-        }
+        
         function chooseColor(y){
             if(y>0){return "#006633"}else if(y<0){return "8B1A1A"}else{return "000000"}
         }
@@ -482,17 +465,18 @@
             var yAxis = d3.svg.axis().scale(yScale).orient("left");
             svg.append("g").attr("class", "axis").attr("transform", "translate(" + xScale(0) + ", 0)").call(yAxis);
         }
-        function plotWords(words){
+        function plotWords(){
             words
                 .attr("class", "trending_words")
                 .attr("x", function(w) {return xScale(w.x);})
                 .attr("y", function(w) {return yScale(w.y);})
                 .style("fill", function(w){ return chooseColor(w.y);})
                 .text(function (w) { return w.word; })
-                .style("opacity", function(w){return opacityScale(Math.abs(w.y))});
+                .style("opacity", function(w){return opacityScale(Math.abs(w.y))})
+                .style("z-index", 5);
         }
         function initializePlot(){
-            plotWords(words);
+            plotWords();
             plotScales();
         }
 
@@ -508,16 +492,23 @@
         var words = svg.selectAll("text").data(input).enter().append("text");
         initializePlot();
 
-        d3.selectAll("trending_words").on('mouseover', mouseover).on('mouseout', mouseout);
+        d3.selectAll(".trending_words").on('mouseover', mouseover).on('mouseout', mouseout);
+        function mouseover(){
+            d3.select(this).style("opacity", "1.0").style("fill", "blue").style("z-index", 99).style("background", "yellow");
+        }
+        function mouseout(){
+            d3.select(this).style("opacity", function(w){return opacityScale(Math.abs(w.y))}).style("fill", function(w){return chooseColor(w.y)}).style("z-index", 5);
+        }
+
 
         d3.selectAll(".trending_words").on('click', function(){
             var selected_word = d3.select(this).text();
-            words.attr('display', function(w){ if(w.word==selected_word){ return 'block';} else  { return 'none';}});
+            words.attr('opacity', 1.0).attr('display', function(w){ if(w.word==selected_word){ return 'block';} else  { return 'none';}});
         });
 
         $('#reset').on('click', function(){
             console.log('clicky');
-            words.attr('display', 'inline');
+            words.attr('display', 'inline').attr('opacity', function(w){return opacityScale(Math.abs(w.y))});
         });
             
             
