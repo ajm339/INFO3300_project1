@@ -58,6 +58,7 @@
 
 
 
+        //maintains an object of all the posts collected.
         var globalAllPosts = {
             allPosts : [],
             addPost : function(post){
@@ -65,11 +66,12 @@
             },
             addPosts : function(postArray){
                 this.allPosts = this.allPosts.concat(postArray);
+                this.allPosts = returnUniques(this.allPosts);
             }
         };
 
 
-
+        //this class is used to plot the words, it contains the information relevant to our D3 svg plot
         function WordDataPoint(word,x,y,z){
             this.word = word;
             this.x = x;
@@ -78,6 +80,7 @@
         }
 
 
+        //takes an array of reddit posts and extracts their titles and calculates their word frequencies
         function extractTitleWordCountsFromPostArray(posts){
             var words = [];
             posts.forEach(function(p){
@@ -94,13 +97,29 @@
                 }
             });
 
-            //ToDo RETURN WORDS SORTED BY FREQUENCY
-
             return wordCounter;
         }
 
+        //Returns a word counter with only the 1000 most common words
+        function sortWordCounterByFreq(wc){
+            var sortable = [];
+            Object.keys(wc).forEach(function(w){
+                sortable.push([w, wc[w]]);
+            });
+            sortable.sort(function(a, b) {return a[1] - b[1]});
+            sortable.reverse();
 
+            var wcToReturn = {};
+            for(var i=0;i<1000;i++){
+                //console.log(i+" " +sortable[i][0] +"  "+sortable[i][1]);
+                wcToReturn[sortable[i][0]] = sortable[i][1];
+            }
 
+            return wcToReturn;
+
+        };
+
+        //maintains a global reference to the 1000 most common words, and updates from teh object containing all the posts
         globalAllWordsInfo = {
             allWords : [],
             allWordsCounter:{},
@@ -108,7 +127,7 @@
             numWordsCounted : 0,
 
             updateAll : function(){
-                globalAllWordsInfo.allWordsCounter= extractTitleWordCountsFromPostArray(globalAllPosts.allPosts);
+                globalAllWordsInfo.allWordsCounter= sortWordCounterByFreq(extractTitleWordCountsFromPostArray(globalAllPosts.allPosts));
                 globalAllWordsInfo.allWords = Object.keys(this.allWordsCounter);
                 globalAllWordsInfo.allWords.forEach(function(w){globalAllWordsInfo.numWordsCounted +=globalAllWordsInfo.allWordsCounter[w];});
                 globalAllWordsInfo.allWords.forEach(function(w){globalAllWordsInfo.allWordsFreq[w]= ((globalAllWordsInfo.allWordsCounter[w])/(globalAllWordsInfo.numWordsCounted))});
@@ -116,23 +135,26 @@
         };
 
 
+
+        //This object uses ajax to make request to the reddit API for JSON objects.
         var globalGetter = {
             reqSize : 25,
             acc : [],
             //baseURL : "http://www.reddit.com/new/.json?&limit=25",
             baseURL : function(limit){
-                return ("http://www.reddit.com/new/.json?&limit="+limit);
+                return ("http://www.reddit.com/new/.json?&limit="+limit); //base url for the reddit api
             },
             nextURL : null,
             apiCount : 0,
             prevData: null,
 
 
-            nextPageURL: function(data,limit){
+            nextPageURL: function(data,limit){ //determines the next url for the next page of reddit posts
                 this.apiCount+=limit;
                 this.nextURL = (this.baseURL(limit)+"&count="+this.apiCount+"&after="+data.data.after);
             },
 
+            //requests a page of n posts where n is <=100
             request_page_of_n_posts : function(nPosts){
                 var url;
                 if (this.nextURL==null){
@@ -140,7 +162,7 @@
                 }else{
                     url = this.nextURL;
                 }
-                $.ajax({
+                $.ajax({ //the important ajax call
                     url: url,
                     type: 'GET',
                     success: function(data) {
@@ -164,6 +186,7 @@
                 });
             },
 
+            //returns the unique posts incase there are duplicates
             returnUniques : function(){
                 var unqs = [];
                 var i;
@@ -176,6 +199,7 @@
                 //console.log(unqs.length);
             },
 
+            // gets n pages of k posts using a timed JS function
             get_n_pages_of_k_posts : function(pagesLim,postsLim){
                 var getNPagesCt = 0;
                 var getNPages = setInterval(function(){
@@ -196,6 +220,7 @@
         };//end globalGetter
 
 
+        //another global copy of return uniques, because why not!
         function returnUniques(arg){
             var unqs = [];
             var i;
@@ -210,7 +235,8 @@
             return unqs;
         }
 
-
+        //time bins takes in an array of reddit posts and returns bins of those that were posted withing a specified
+        // number of seconds, so it puts the posts into bins of a certain width
         function timeBins(posts, binWidthInSecs){
             var times = [];
             posts.forEach(function(p){
@@ -243,11 +269,12 @@
         }
 
 
+        //This object creates the data points for D3 to plot
         var relWordFreqDataPoints = {
             dataPoints :[],
             postsByTime : [],
 
-
+            //same as the time bins outside.
             timeBins : function(posts, binWidthInSecs){
                 var times = [];
                 posts.forEach(function(p){
@@ -279,7 +306,7 @@
 
             },
 
-
+            //this goes through the time bins, and creates word counters for each bin
             wordCountsAtIntervals : function (timeWindowIntervalSecs, posts){
                 var tWin = timeWindowIntervalSecs;
                 var posts = returnUniques(posts);
@@ -294,6 +321,8 @@
             },
 
 
+            //this calls the functions above using time window width, and then makes all the data point objects for
+            // D3 to plot
             makeDataPoints : function(timeWindowWidth){
                 globalAllWordsInfo.updateAll();
                 var dataPointsByTime = [];
@@ -374,13 +403,15 @@
 
             },
 
-
+            //this updates the
             update : function(timeWindowWidth){
                 this.postsByTime = this.wordCountsAtIntervals(timeWindowWidth,globalAllPosts.allPosts);
             }
 
         };
 
+
+        //converts a word counter object to relative word frequency object.
         function wordCounterToFreq(wc){
             var totalCount = 0;
             var ks = Object.keys(wc);
@@ -390,7 +421,7 @@
             return wf;
         }
 
-
+        //this function was just some fun, and it would check if an array was sorted, go ahead and ignore it.
         function isSorted(posts){
             var isSorted = true;
             var sorted = [];
@@ -425,7 +456,8 @@
             return isSorted;
         }
 
-
+        //This is a little exercise in functional programming, it allows an array of complicated objects to be
+        // to have the objects within compared.
         function arrayCompare(anArray, accessorFunc, compareFunc){
             var max;
             anArray.forEach(function(el){
@@ -438,6 +470,8 @@
             return max;
         }
 
+
+        //this adds the JS file containing 1000 posts 
         globalAllPosts.addPosts(posts1000);
 
 
