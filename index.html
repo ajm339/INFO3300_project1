@@ -17,7 +17,7 @@
 			.axis line { stroke: black; }
 			text.trending_words { font-size: small; font-family: "Helvetica"; text-anchor: middle; alignment-baseline: central; cursor: pointer;}
 			text.trending_words:hover {font-weight: bold; font-size: xx-large; z-index: 99;}
-            text.trending_words.opacity{opacity: '1.0'};
+            text.trending_words.opacity{opacity: '1.0'}
 		</style>
 	</head>
 
@@ -71,7 +71,7 @@
         globalAllPosts.addPosts(posts1000);
 
 
-        function wordDataPoint(word,x,y,z){
+        function WordDataPoint(word,x,y,z){
             this.word = word;
             this.x = x;
             this.y = y;
@@ -292,23 +292,67 @@
                 var dataPointsByTime = [];
                 var allDP = [];
                 var baseline = globalAllWordsInfo.allWordsFreq;
+                var thisWf;
+                var i;
+
                 var xs = this.wordCountsAtIntervals(timeWindowWidth,globalAllPosts.allPosts);
 
-                for(var i = 0;i<xs.length;i++){
-                    dataPointsByTime[i]= [];
-                    var thisWf = wordCounterToFreq(xs[i]);
-//                    if(i==0){
-//                        (Object.keys(xs[i])).forEach(function(w){
-//                            dataPointsByTime[i].push(new wordDataPoint(w,i,thisWf[w]-globalAllWordsInfo.allWordsFreq[w],10));
-//                        })
-                    //console.log(thisWf);
-                    (Object.keys(xs[i])).forEach(function(w){
-                        //console.log(w);
-                        allDP.push(new wordDataPoint(w,i,thisWf[w]-globalAllWordsInfo.allWordsFreq[w],10));
-                    })
-
-                }
+//                for(i = 0;i<xs.length;i++){
+//                    dataPointsByTime[i]= [];
+//                    thisWf = wordCounterToFreq(xs[i]);
+////                    if(i==0){
+////                        (Object.keys(xs[i])).forEach(function(w){
+////                            dataPointsByTime[i].push(new WordDataPoint(w,i,thisWf[w]-globalAllWordsInfo.allWordsFreq[w],10));
+////                        })
+//                    //console.log(thisWf);
+//                    (Object.keys(xs[i])).forEach(function(w){
+//                        //console.log(w);
+//                        allDP.push(new WordDataPoint(w,i,thisWf[w]-globalAllWordsInfo.allWordsFreq[w],10));
+//                    })
+//
+//                }
                 this.dataPoints = allDP;
+
+                var allw = globalAllWordsInfo.allWords;
+
+                dataPointsByTime = [];
+                allDP = [];
+
+                for(i = 0; i<xs.length; i++){
+
+                    dataPointsByTime[i]={};
+                    thisWf = wordCounterToFreq(xs[i]);
+                    allw.forEach(function(w){
+                        if(thisWf[w]==undefined){
+                            thisWf[w]=0;
+                        }
+
+
+                    }); //set word freqs to 0 if not present
+
+
+                    if(i==0){
+                        allw.forEach(function(w){
+                            dataPointsByTime[i][w]=thisWf[w]-globalAllWordsInfo.allWordsFreq[w];
+                        });
+
+                    }else{
+                        allw.forEach(function(w){
+                            dataPointsByTime[i][w]=thisWf[w]-dataPointsByTime[i-1][w];
+                        });
+                    }
+                }
+
+                for(i = 0; i<xs.length; i++){
+                    allw.forEach(function(w){
+                        if(w.length > 5){
+                            allDP.push(new WordDataPoint(w,i,dataPointsByTime[i][w],10));
+                        }
+
+                    });
+                }
+
+                this.dataPoints=allDP;
 
             },
 
@@ -375,6 +419,13 @@
             });
             return max;
         }
+
+
+
+
+
+
+
 
         function opacityScale(y){
             if(y==0){
